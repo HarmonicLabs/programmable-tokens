@@ -1,7 +1,7 @@
 use aiken/collection/dict
 use aiken/collection/list
 use aiken/collection/pairs
-use cardano/address.{Address, Credential, Inline, Script}
+use cardano/address.{Address, Credential, Inline, Script, VerificationKey}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
 use draft/types.{
@@ -300,7 +300,7 @@ validator transferManager(registry: PolicyId, owner: ByteArray) {
     expect Some(ownIn) =
       list.find(tx.inputs, fn(in) { in.output_reference == oref })
 
-    expect Address(ownHash, Some(Inline(Script(userKey)))) =
+    expect Address(ownHash, Some(Inline(VerificationKey(userKey)))) =
       ownIn.output.address
 
     let ownIns =

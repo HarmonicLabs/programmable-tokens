@@ -1,4 +1,4 @@
-use cardano/address.{Address, Script, VerificationKey}
+use cardano/address.{Address, Inline, Script, VerificationKey}
 use cardano/assets.{Value}
 use cardano/transaction.{Datum, Input, Output, OutputReference}
 
@@ -27,6 +27,15 @@ pub fn scriptAddress(s: ByteArray) -> Address {
   let address =
     Address { payment_credential: Script(s), stake_credential: None }
 
+  address
+}
+
+pub fn stakeAddress(s: ByteArray, c: ByteArray) {
+  let address =
+    Address {
+      payment_credential: Script(s),
+      stake_credential: Some(Inline(VerificationKey(c))),
+    }
   address
 }
 
