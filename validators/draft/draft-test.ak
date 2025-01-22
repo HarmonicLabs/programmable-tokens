@@ -1,6 +1,6 @@
 use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
-use draft/draft
 use draft/scripts as s
+use draft/transfer_manager
 use draft/types.{GlobalDatum, RegistryDatum, Spend, UserStateDatum}
 use draft/variables as v
 use tools as t
@@ -101,7 +101,14 @@ test transferManagerSpend() {
       extra_signatories: [user],
     }
 
-  draft.transferManager.spend(s.tokenRegistry, owner, None, Spend, oref, tx)?
+  transfer_manager.transferManager.spend(
+    s.tokenRegistry,
+    owner,
+    None,
+    Spend,
+    oref,
+    tx,
+  )?
 }
 
 // send all tokens to recipient
@@ -192,7 +199,14 @@ test transferManagerSpendAll() {
       extra_signatories: [user],
     }
 
-  draft.transferManager.spend(s.tokenRegistry, owner, None, Spend, oref, tx)?
+  transfer_manager.transferManager.spend(
+    s.tokenRegistry,
+    owner,
+    None,
+    Spend,
+    oref,
+    tx,
+  )?
 }
 
 // Multi Recipient test
@@ -301,5 +315,12 @@ test transferManagerMulti() {
       extra_signatories: [user],
     }
 
-  draft.transferManager.spend(s.tokenRegistry, owner, None, Spend, oref, tx)?
+  transfer_manager.transferManager.spend(
+    s.tokenRegistry,
+    owner,
+    None,
+    Spend,
+    oref,
+    tx,
+  )?
 }
