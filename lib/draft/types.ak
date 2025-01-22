@@ -1,5 +1,10 @@
-// Token Registry
+// Transfer Manager 
+pub type TransferAction {
+  Spend
+  ClawBack
+}
 
+// Token Registry
 pub type RegistryDatum {
   // minting policy of this programmable token 
   tokenPolicy: ByteArray,
@@ -30,7 +35,6 @@ pub type RegistryMintAction {
 }
 
 // Global State
-
 pub type GlobalDatum {
   freeze: Bool,
   // list of script hashes for tokenActions
