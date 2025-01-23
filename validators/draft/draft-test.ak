@@ -1,7 +1,7 @@
 use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use draft/scripts as s
 use draft/transfer_manager
-use draft/types.{GlobalDatum, RegistryDatum, Spend, UserStateDatum}
+use draft/types.{RegistryDatum, Spend, UserStateDatum}
 use draft/variables as v
 use tools as t
 
@@ -25,9 +25,9 @@ test transferManagerSpend() {
       s.globalState,
     )
 
-  let globalStateDatum = GlobalDatum(False, [])
-  let userStateDatum = UserStateDatum(False, False, False, False)
-  let recStateDatum = UserStateDatum(False, False, False, False)
+  let globalStateDatum = 0
+  let userStateDatum = UserStateDatum(0, 0, 0, 0)
+  let recStateDatum = UserStateDatum(0, 0, 0, 0)
 
   let registryRef =
     t.input(
@@ -129,9 +129,9 @@ test transferManagerSpendAll() {
       s.globalState,
     )
 
-  let globalStateDatum = GlobalDatum(False, [])
-  let userStateDatum = UserStateDatum(False, False, False, False)
-  let recStateDatum = UserStateDatum(False, False, False, False)
+  let globalStateDatum = 0
+  let userStateDatum = UserStateDatum(0, 0, 0, 0)
+  let recStateDatum = UserStateDatum(0, 0, 0, 0)
 
   let registryRef =
     t.input(
@@ -228,9 +228,9 @@ test transferManagerMulti() {
       s.globalState,
     )
 
-  let globalStateDatum = GlobalDatum(False, [])
-  let userStateDatum = UserStateDatum(False, False, False, False)
-  let recStateDatum = UserStateDatum(False, False, False, False)
+  let globalStateDatum = 0
+  let userStateDatum = UserStateDatum(0, 0, 0, 0)
+  let recStateDatum = UserStateDatum(0, 0, 0, 0)
 
   let registryRef =
     t.input(

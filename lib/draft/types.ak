@@ -1,3 +1,9 @@
+// Bool Constr
+pub type IBool {
+  ITrue
+  IFalse
+}
+
 // Transfer Manager 
 pub type TransferAction {
   Spend
@@ -34,30 +40,32 @@ pub type RegistryMintAction {
   RBurn
 }
 
-// Global State
-pub type GlobalDatum {
-  freeze: Bool,
-  // list of script hashes for tokenActions
-  actions: List<ByteArray>,
-}
+// Global State only uses Freeze, so we will represent it as an Int 0 || 1
+// // Global State
+// pub type GlobalDatum {
+//   freeze: IBool,
+//   // list of script hashes for tokenActions
+//   actions: List<ByteArray>,
+// }
 
-pub type GlobalAction {
-  GState { freeze: Bool }
-  GUpdate { actions: List<ByteArray> }
-}
+// pub type GlobalAction {
+//   GState { freeze: IBool }
+//   GUpdate { actions: List<ByteArray> }
+// }
 
 pub type GlobalMintAction {
-  GMint { actions: List<ByteArray> }
+  GMint
+  // { actions: List<ByteArray> }
   GBurn
 }
 
 // User State
 
 pub type UserStateDatum {
-  admin: Bool,
-  kyc: Bool,
-  blacklist: Bool,
-  freeze: Bool,
+  admin: Int,
+  kyc: Int,
+  blacklist: Int,
+  freeze: Int,
 }
 
 pub type UserStateMintAction {

@@ -1,0 +1,19 @@
+{
+  "name": "offchain",
+  "version": "1.0.0",
+  "description": "programmable tokens offchain",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rhys Morgan",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@harmoniclabs/blockfrost-pluts": "^0.1.16",
+    "@harmoniclabs/plu-ts": "^0.9.0",
+    "@meshsdk/core": "^1.8.13"
+  }
+}

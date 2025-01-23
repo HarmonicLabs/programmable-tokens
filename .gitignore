@@ -6,3 +6,7 @@ build/
 docs/
 # Aiken Environment variables
 env/
+
+offchain/node_modules/
+
+offchain/package-lock.json

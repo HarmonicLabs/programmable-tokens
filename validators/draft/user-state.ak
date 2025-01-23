@@ -56,7 +56,8 @@ validator userStateManager(owner: ByteArray, _asset: PolicyId) {
         expect outDatum: UserStateDatum = datum
 
         and {
-          outDatum.admin == True,
+          // 1 represents True
+          outDatum.admin == 1,
           list.has(tx.extra_signatories, owner),
         }
       }
@@ -76,7 +77,8 @@ validator userStateManager(owner: ByteArray, _asset: PolicyId) {
         expect outDatum: UserStateDatum = datum
 
         and {
-          outDatum.kyc == True,
+          // 1 represents True
+          outDatum.kyc == 1,
           list.has(tx.extra_signatories, owner),
         }
       }
@@ -96,7 +98,8 @@ validator userStateManager(owner: ByteArray, _asset: PolicyId) {
         expect outDatum: UserStateDatum = datum
 
         and {
-          outDatum.blacklist == True,
+          // 1 represents True
+          outDatum.blacklist == 1,
           list.has(tx.extra_signatories, owner),
         }
       }
@@ -116,7 +119,8 @@ validator userStateManager(owner: ByteArray, _asset: PolicyId) {
         expect outDatum: UserStateDatum = datum
 
         and {
-          outDatum.freeze == True,
+          // 1 represents True
+          outDatum.freeze == 1,
           list.has(tx.extra_signatories, owner),
         }
       }
