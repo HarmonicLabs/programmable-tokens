@@ -1,13 +1,15 @@
-import { Address, IUTxO, Value } from "@harmoniclabs/plu-ts"
-import { fromUtf8 } from "@harmoniclabs/uint8array-utils"
-import { globalAddr, globalPolicy, globalStateScript } from "./scripts"
+import { Address, Application, compileUPLC, DataB, IUTxO, parseUPLC, Script, ScriptType, TxOutRef, UPLCConst, UPLCProgram, Value } from "@harmoniclabs/plu-ts"
+import { fromHex, fromUtf8 } from "@harmoniclabs/uint8array-utils"
 import { initGlobalDatum, globalMintAction, freezeGlobalDatum, globalBurnAction, dTrue, dFalse } from "./datumsRedeemers"
 import getTxBuilder from "./blockfrost"
 import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts"
+import { Constr, UPLCTerm } from "@harmoniclabs/uplc"
 import { BrowserWallet } from "@meshsdk/core";
+import validators from '../validators'
 
 // mint global state token
 export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+  const global = validators.validators.global
 
   const changeAdd = Address.fromString(
     await wallet.getChangeAddress()
@@ -16,10 +18,11 @@ export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
   const utxos = await blockfrost.addressUtxos(changeAdd)
     .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
 
-  const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
+  const utxoIn = utxos.find(utxo => utxo.utxoRef == validators.bootOref)!;
+  const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000 && utxo != utxoIn)!;
 
   const mintedValue = Value.singleAsset(
-    globalPolicy,
+    global.hash,
     fromUtf8(''),
     1
   )
@@ -27,23 +30,23 @@ export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
-    inputs: [{ utxo }],
+    inputs: [{ utxo: utxoIn }],
     changeAddress: changeAdd,
-    collaterals: [utxo],
+    collaterals: [collateralUtxo],
     collateralReturn: {
-      address: utxo.resolved.address,
-      value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
+      address: collateralUtxo.resolved.address,
+      value: Value.sub(collateralUtxo.resolved.value, Value.lovelaces(5_000_000))
     },
     mints: [{
       value: mintedValue,
       script: {
-        inline: globalStateScript,
-        policyId: globalPolicy,
+        inline: global.script,
+        policyId: global.hash,
         redeemer: globalMintAction
       }
     }],
     outputs: [{
-      address: globalAddr,
+      address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
     }]
@@ -54,25 +57,9 @@ export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
   return await blockfrost.submitTx(txStr)
 }
 
-// export function mintGlobalStateRunner() {
-//   const assetName = toHex(Buffer.from(''))
-//   const tx = txRunner
-//     .addInput(
-//       utxo
-//     )
-//     .mintAssets(
-//       { globalPolicy, [{ name: , 1: }]: },
-//       globalStateScript
-//     )
-//     .payTo(
-//       globalAddr,
-//       mintedValue,
-//       initGlobalDatum
-//     )
-// }
-
 // burn global state token
 export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+  const global = validators.validators.global
 
   const changeAdd = Address.fromString(
     await wallet.getChangeAddress()
@@ -83,11 +70,11 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
 
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos = await blockfrost.addressUtxos(globalAddr)
-  const gutxo: IUTxO = gutxos.find(gutxo => gutxo.resolved.value.)
+  const gutxos: IUTxO[] = await blockfrost.addressUtxos(global.address)
+  const gutxo: IUTxO = gutxos[0]
 
   const mintedValue = Value.singleAsset(
-    globalPolicy,
+    global.hash,
     fromUtf8(''),
     -1
   )
@@ -95,7 +82,16 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
-    inputs: [{ utxo }, { gutxo, globalBurnAction }],
+    inputs: [
+      {
+        utxo: gutxo,
+        inputScript: {
+          script: global.script,
+          datum: "inline",
+          redeemer: globalBurnAction
+        }
+      }
+    ],
     changeAddress: changeAdd,
     collaterals: [utxo],
     collateralReturn: {
@@ -105,13 +101,13 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
     mints: [{
       value: mintedValue,
       script: {
-        inline: globalStateScript,
-        policyId: globalPolicy,
+        inline: global.script,
+        policyId: global.policy,
         redeemer: globalMintAction
       }
     }],
     outputs: [{
-      address: globalAddr,
+      address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
     }]
@@ -124,6 +120,7 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
 
 // freeze global state
 export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+  const global = validators.validators.global
 
   const changeAdd = Address.fromString(
     await wallet.getChangeAddress()
@@ -134,11 +131,11 @@ export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost
 
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos = await blockfrost.addressUtxos(globalAddr)
-  const gutxo: IUTxO = gutxos.find(gutxo => gutxo.resolved.value.)
+  const gutxos = await blockfrost.addressUtxos(global.address)
+  const gutxo: IUTxO = gutxos[0]
 
   const mintedValue = Value.singleAsset(
-    globalPolicy,
+    global.hash,
     fromUtf8(''),
     -1
   )
@@ -146,7 +143,16 @@ export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
-    inputs: [{ utxo }, { gutxo, dTrue }],
+    inputs: [
+      {
+        utxo: gutxo,
+        inputScript: {
+          script: global.script,
+          datum: "inline",
+          redeemer: dTrue
+        }
+      }
+    ],
     changeAddress: changeAdd,
     collaterals: [utxo],
     collateralReturn: {
@@ -154,7 +160,7 @@ export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost
       value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
     },
     outputs: [{
-      address: globalAddr,
+      address: global.address,
       value: mintedValue,
       datum: freezeGlobalDatum,
     }]
@@ -167,6 +173,7 @@ export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost
 
 // defrost global state
 export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+  const global = validators.validators.global
 
   const changeAdd = Address.fromString(
     await wallet.getChangeAddress()
@@ -177,11 +184,11 @@ export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfros
 
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos = await blockfrost.addressUtxos(globalAddr)
-  const gutxo: IUTxO = gutxos.find(gutxo => gutxo.resolved.value.)
+  const gutxos = await blockfrost.addressUtxos(global.address)
+  const gutxo: IUTxO = gutxos[0]
 
   const mintedValue = Value.singleAsset(
-    globalPolicy,
+    global.hash,
     fromUtf8(''),
     -1
   )
@@ -189,7 +196,16 @@ export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfros
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
-    inputs: [{ utxo }, { gutxo, dFalse }],
+    inputs: [
+      {
+        utxo: gutxo,
+        inputScript: {
+          script: global.script,
+          datum: "inline",
+          redeemer: dFalse
+        }
+      }
+    ],
     changeAddress: changeAdd,
     collaterals: [utxo],
     collateralReturn: {
@@ -197,7 +213,7 @@ export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfros
       value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
     },
     outputs: [{
-      address: globalAddr,
+      address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
     }]

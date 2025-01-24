@@ -48,7 +48,7 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
   }
 
   spend(dat: Option<Int>, r: Int, oref: OutputReference, tx: Transaction) {
-    expect Some(d) = dat
+    expect Some(_d) = dat
 
     expect Some(ownInput) =
       list.find(tx.inputs, fn(input) { input.output_reference == oref })

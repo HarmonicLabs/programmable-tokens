@@ -10,3 +10,7 @@ env/
 offchain/node_modules/
 
 offchain/package-lock.json
+
+offchain/.env
+
+node_modules

@@ -8,7 +8,7 @@ use tools as t
 // TODO: Complete Transfer Manager test
 
 // send tokens with change
-test transferManagerSpend() {
+test spendWithChange() {
   let user = v.a
   let rec1 = v.b
   let owner = v.c
@@ -112,7 +112,7 @@ test transferManagerSpend() {
 }
 
 // send all tokens to recipient
-test transferManagerSpendAll() {
+test spendAll() {
   let user = v.a
   let rec1 = v.b
   let owner = v.c
@@ -210,7 +210,7 @@ test transferManagerSpendAll() {
 }
 
 // Multi Recipient test
-test transferManagerMulti() {
+test spendToMany() {
   let user = v.a
   let rec1 = v.b
   let rec2 = v.c

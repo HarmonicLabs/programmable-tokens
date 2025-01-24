@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@harmoniclabs/uplc": "^1.4.0",
+    "@lucid-evolution/lucid": "^0.4.20"
+  }
+}
