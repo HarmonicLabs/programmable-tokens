@@ -1,50 +1,55 @@
 import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts";
-import { fromUtf8 } from "@harmoniclabs/uint8array-utils"
-import { Address, StakeHash, Credential, StakeCredentials, StakeKeyHash, Value } from "@harmoniclabs/plu-ts";
-import { BrowserWallet } from "@meshsdk/core";
-import getTxBuilder from "./blockfrost";
+import { fromHex, fromUtf8 } from "@harmoniclabs/uint8array-utils"
+import { Address, StakeHash, Credential, StakeCredentials, StakeKeyHash, Value, PrivateKey } from "@harmoniclabs/plu-ts";
+import { BrowserWallet, WalletStaticMethods } from "@meshsdk/core";
+import { getTxBuilder } from "./blockfrost";
 import { transferSpend, userStateBlacklist } from "./datumsRedeemers";
-import { globalAddr, registryAddr, transferManagerScript, userPolicy, userStateAddr } from "./scripts";
+import { getAuthUtxoWithName } from "./utxos";
+import { wallets } from "./wallets";
+import { readFile } from 'fs/promises'
 
 // spend tokens
-export async function spendTransferBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts, recipient: Address): Promise<string> {
+export async function spendTransferBuilder(blockfrost: BlockfrostPluts): Promise<string> {
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
+  const state = validators.validators.userState
+  const registry = validators.validators.registry
+  const global = validators.validators.global
+  const transfer = validators.validators.transfer
+  const wallet = await wallets()
 
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+  const utxos = await blockfrost.addressUtxos(wallet.user1.address)
+    .catch(e => { throw new Error("unable to find utxos at " + wallet.user1.address) });
 
-  const utxos = await blockfrost.addressUtxos(changeAdd)
-    .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
-
-  const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
+  const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
   // v-- TODO --v
-  const senderStateToken = (userPolicy.changeAdd.hash, 1)
-  const recipientStateToken = (userPolicy.recipientAddr.hash, 1)
+  const senderStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user1.pub))
+  const recipientStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user2.pub))
   // v-- TODO --v
-  const regUtxos = await blockfrost.addressUtxos(registryAddr)
-  const globUtxos = await blockfrost.addressUtxos(globalAddr)
-  const stateUtxos = await blockfrost.addressUtxos(userStateAddr)
+  const regUtxo = await getAuthUtxoWithName(registry.address, registry.hash, fromHex(bTokenPolicy))
+  const globUtxo = await getAuthUtxoWithName(global.address, global.hash, fromUtf8(''))
   // v-- TODO --v
   const userTransferAddr = new Address(
     "testnet",
-    Credential.script(transferManagerScript.hash),
-    new StakeCredentials("stakeKey", changeAdd.paymentCreds.hash)
+    Credential.script(transfer.hash),
+    new StakeCredentials("stakeKey", wallet.user1.pub)
   )
+
+  const inutxo = await getAuthUtxoWithName(userTransferAddress)
 
   const recipientAddr = new Address(
     "testnet",
     Credential.script(transferManagerScript.hash),
-    new StakeCredentials("stakeKey", changeAdd.paymentCreds.hash)
+    new StakeCredentials("stakeKey", wallet.user2.pub)
   )
 
   const outTokenValue = Value.singleAsset(
-    tokenPolicy,
+    bTokenPolicy,
     fromUtf8(''),
     100
   )
 
   const sendValue = Value.singleAsset(
-    tokenPolicy,
+    bTokenPolicy,
     fromUtf8(''),
     100
   )
@@ -52,12 +57,12 @@ export async function spendTransferBuilder(wallet: BrowserWallet, blockfrost: Bl
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
-    inputs: [{ utxo }, { inutxo, transferSpend }],
-    changeAddress: changeAdd,
-    collaterals: [utxo],
+    inputs: [{ inutxo, transferSpend }],
+    changeAddress: wallet.user1.address,
+    collaterals: [collateralUtxo],
     collateralReturn: {
-      address: utxo.resolved.address,
-      value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
+      address: collateralUtxo.resolved.address,
+      value: Value.sub(collateralUtxo.resolved.value, Value.lovelaces(5_000_000))
     },
     outputs: [{
       address: userTransferAddr,
@@ -67,10 +72,13 @@ export async function spendTransferBuilder(wallet: BrowserWallet, blockfrost: Bl
       address: recipientAddr,
       value: sendValue,
     }],
-    readonlyRefInputs: [registryUtxo, senderStateUtxo, recipientStateUtxo, globalStateUtxo]
+    readonlyRefInputs: [regUtxo, senderStateUtxo, recipientStateUtxo, globUtxo]
   })
 
-  const txStr = await wallet.signTx(unsignedTx.toCbor().toString());
+  unsignedTx.signWith(new PrivateKey(wallet.user1.priv))
 
-  return await blockfrost.submitTx(txStr)
+  const submitTx = await blockfrost.submitTx(unsignedTx)
+  console.log(submitTx)
+
+  return submitTx
 }

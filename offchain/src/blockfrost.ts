@@ -12,7 +12,7 @@ export const blockfrost = new BlockfrostPluts({
   projectId: '', // see: https://blockfrost.io
 });
 
-export default async function getTxBuilder(blockfrost: BlockfrostPluts): Promise<TxBuilder> {
+export async function getTxBuilder(blockfrost: BlockfrostPluts): Promise<TxBuilder> {
   if (!(_cachedTxBuilder instanceof TxBuilder)) {
     const parameters = await blockfrost.epochsLatestParameters();
     _cachedTxBuilder = new TxBuilder(parameters);

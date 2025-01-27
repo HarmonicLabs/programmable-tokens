@@ -1,5 +1,4 @@
 import { Constr, DataB, DataConstr, DataI } from "@harmoniclabs/plu-ts";
-import { transferManagerScript, userPolicy } from "./scripts";
 
 export const dTrue = new DataI(1)
 export const dFalse = new DataI(0)

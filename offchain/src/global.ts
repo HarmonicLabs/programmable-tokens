@@ -1,19 +1,21 @@
-import { Address, Application, compileUPLC, DataB, IUTxO, parseUPLC, Script, ScriptType, TxOutRef, UPLCConst, UPLCProgram, Value } from "@harmoniclabs/plu-ts"
+import { Address, Application, compileUPLC, DataB, IUTxO, parseUPLC, PrivateKey, Script, ScriptType, TxOutRef, UPLCConst, UPLCProgram, Value } from "@harmoniclabs/plu-ts"
 import { fromHex, fromUtf8 } from "@harmoniclabs/uint8array-utils"
 import { initGlobalDatum, globalMintAction, freezeGlobalDatum, globalBurnAction, dTrue, dFalse } from "./datumsRedeemers"
-import getTxBuilder from "./blockfrost"
+import { getTxBuilder } from "./blockfrost"
 import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts"
 import { Constr, UPLCTerm } from "@harmoniclabs/uplc"
+import { readFile } from 'fs/promises'
 import { BrowserWallet } from "@meshsdk/core";
-import validators from '../validators'
+import { wallets } from './wallets'
+import { getAuthUtxoWithName } from "./utxos"
 
 // mint global state token
-export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+export async function mintGlobalStateBuilder(blockfrost: BlockfrostPluts): Promise<string> {
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
+  const wallet = await wallets()
   const global = validators.validators.global
 
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+  const changeAdd = wallet.owner.address
 
   const utxos = await blockfrost.addressUtxos(changeAdd)
     .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
@@ -27,6 +29,12 @@ export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
     1
   )
 
+  const mintScript = {
+    inline: global.script,
+    policyId: global.hash,
+    redeemer: globalMintAction
+  }
+
   const txBuilder = await getTxBuilder(blockfrost)
 
   const unsignedTx = txBuilder.buildSync({
@@ -39,44 +47,43 @@ export async function mintGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
     },
     mints: [{
       value: mintedValue,
-      script: {
-        inline: global.script,
-        policyId: global.hash,
-        redeemer: globalMintAction
-      }
+      script: mintScript,
     }],
     outputs: [{
       address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
-    }]
+    }],
+    requiredSigners: [wallet.owner.pub]
   })
 
-  const txStr = await wallet.signTx(unsignedTx.toCbor().toString());
+  unsignedTx.signWith(new PrivateKey(wallet.owner.priv))
 
-  return await blockfrost.submitTx(txStr)
+  const submitTx = await blockfrost.submitTx(unsignedTx)
+  console.log(submitTx)
+
+  return submitTx
 }
 
 // burn global state token
-export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+export async function burnGlobalStateBuilder(blockfrost: BlockfrostPluts): Promise<string> {
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
+  const wallet = await wallets()
   const global = validators.validators.global
 
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+  const changeAdd = wallet.owner.address
 
   const utxos = await blockfrost.addressUtxos(changeAdd)
     .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
 
-  const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
+  const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos: IUTxO[] = await blockfrost.addressUtxos(global.address)
-  const gutxo: IUTxO = gutxos[0]
+  const gutxo = await getAuthUtxoWithName(global.address, global.hash, fromUtf8(''))
 
   const mintedValue = Value.singleAsset(
     global.hash,
     fromUtf8(''),
-    -1
+    1
   )
 
   const txBuilder = await getTxBuilder(blockfrost)
@@ -93,10 +100,10 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
       }
     ],
     changeAddress: changeAdd,
-    collaterals: [utxo],
+    collaterals: [collateralUtxo],
     collateralReturn: {
-      address: utxo.resolved.address,
-      value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
+      address: collateralUtxo.resolved.address,
+      value: Value.sub(collateralUtxo.resolved.value, Value.lovelaces(5_000_000))
     },
     mints: [{
       value: mintedValue,
@@ -110,29 +117,32 @@ export async function burnGlobalStateBuilder(wallet: BrowserWallet, blockfrost: 
       address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
-    }]
+    }],
+    requiredSigners: [wallet.owner.pub]
   })
 
-  const txStr = await wallet.signTx(unsignedTx.toCbor().toString());
+  unsignedTx.signWith(new PrivateKey(wallet.owner.priv))
 
-  return await blockfrost.submitTx(txStr)
+  const submitTx = await blockfrost.submitTx(unsignedTx)
+  console.log(submitTx)
+
+  return submitTx
 }
 
 // freeze global state
-export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+export async function freezeGlobalStateBuilder(blockfrost: BlockfrostPluts): Promise<string> {
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
+  const wallet = await wallets()
   const global = validators.validators.global
 
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+  const changeAdd = wallet.owner.address
 
   const utxos = await blockfrost.addressUtxos(changeAdd)
     .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
 
-  const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
+  const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos = await blockfrost.addressUtxos(global.address)
-  const gutxo: IUTxO = gutxos[0]
+  const gutxo = await getAuthUtxoWithName(global.address, global.hash, fromUtf8(''))
 
   const mintedValue = Value.singleAsset(
     global.hash,
@@ -154,38 +164,41 @@ export async function freezeGlobalStateBuilder(wallet: BrowserWallet, blockfrost
       }
     ],
     changeAddress: changeAdd,
-    collaterals: [utxo],
+    collaterals: [collateralUtxo],
     collateralReturn: {
-      address: utxo.resolved.address,
-      value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
+      address: collateralUtxo.resolved.address,
+      value: Value.sub(collateralUtxo.resolved.value, Value.lovelaces(5_000_000))
     },
     outputs: [{
       address: global.address,
       value: mintedValue,
       datum: freezeGlobalDatum,
-    }]
+    }],
+    requiredSigners: [wallet.owner.pub]
   })
 
-  const txStr = await wallet.signTx(unsignedTx.toCbor().toString());
+  unsignedTx.signWith(new PrivateKey(wallet.owner.priv))
 
-  return await blockfrost.submitTx(txStr)
+  const submitTx = await blockfrost.submitTx(unsignedTx)
+  console.log(submitTx)
+
+  return submitTx
 }
 
 // defrost global state
-export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfrost: BlockfrostPluts): Promise<string> {
+export async function defrostGlobalStateBuilder(blockfrost: BlockfrostPluts): Promise<string> {
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
+  const wallet = await wallets()
   const global = validators.validators.global
 
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+  const changeAdd = wallet.owner.address
 
   const utxos = await blockfrost.addressUtxos(changeAdd)
     .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
 
-  const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
+  const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
-  const gutxos = await blockfrost.addressUtxos(global.address)
-  const gutxo: IUTxO = gutxos[0]
+  const gutxo = await getAuthUtxoWithName(global.address, global.hash, fromUtf8(''))
 
   const mintedValue = Value.singleAsset(
     global.hash,
@@ -207,19 +220,23 @@ export async function defrostGlobalStateBuilder(wallet: BrowserWallet, blockfros
       }
     ],
     changeAddress: changeAdd,
-    collaterals: [utxo],
+    collaterals: [collateralUtxo],
     collateralReturn: {
-      address: utxo.resolved.address,
-      value: Value.sub(utxo.resolved.value, Value.lovelaces(5_000_000))
+      address: collateralUtxo.resolved.address,
+      value: Value.sub(collateralUtxo.resolved.value, Value.lovelaces(5_000_000))
     },
     outputs: [{
       address: global.address,
       value: mintedValue,
       datum: initGlobalDatum,
-    }]
+    }],
+    requiredSigners: [wallet.owner.pub]
   })
 
-  const txStr = await wallet.signTx(unsignedTx.toCbor().toString());
+  unsignedTx.signWith(new PrivateKey(wallet.owner.priv))
 
-  return await blockfrost.submitTx(txStr)
+  const submitTx = await blockfrost.submitTx(unsignedTx)
+  console.log(submitTx)
+
+  return submitTx
 }

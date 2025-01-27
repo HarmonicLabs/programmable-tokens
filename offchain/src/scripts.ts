@@ -1,12 +1,12 @@
 import { Address, Credential, DataB, Script, ScriptType } from "@harmoniclabs/plu-ts";
 import { parseUPLC, compileUPLC, UPLCProgram, Application, UPLCConst } from "@harmoniclabs/uplc"
 import { fromHex } from '@harmoniclabs/uint8array-utils'
-import plutus from '../../plutus.json'
 import { Constr, UPLCTerm } from "@harmoniclabs/uplc"
-import blockfrost from "./blockfrost";
+import { blockfrost } from "./blockfrost.js";
 import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts";
 import { BrowserWallet } from "@meshsdk/core";
-import { writeFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
+import { wallets } from "./wallets.js";
 
 export function applyMany(func: UPLCTerm, argsData: UPLCConst[]) {
   for (let i = 0; i < argsData.length; i++) func = new Application(func, argsData[i]);
@@ -27,17 +27,18 @@ export function applyParams(compiledCode: string, params: any[]) {
   return fromHex(applied.toBinStr())
 }
 
-export async function makeValidators(wallet: BrowserWallet, blockfrost: BlockfrostPluts) {
-  const changeAdd = Address.fromString(
-    await wallet.getChangeAddress()
-  )
+export async function makeValidators() {
+  const plutus = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" }))
+  const wallet = await wallets()
 
-  const hash = fromHex(changeAdd.paymentCreds.hash.toString())
+  const owner = wallet.owner
+
+  const hash = fromHex(owner.pub)
   const hashAsBytes = new DataB(hash)
   const uplcOwnerHash = UPLCConst.data(hashAsBytes)
 
-  const utxos = await blockfrost.addressUtxos(changeAdd)
-    .catch(e => { throw new Error("unable to find utxos at " + changeAdd) });
+  const utxos = await blockfrost.addressUtxos(owner.address)
+    .catch(e => { throw new Error("unable to find utxos at " + owner.address) });
 
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
@@ -100,32 +101,31 @@ export async function makeValidators(wallet: BrowserWallet, blockfrost: Blockfro
 
   const validators = {
     bootOref: ref,
-    ownerPkh: changeAdd.paymentCreds.hash.toString(),
+    ownerPkh: owner.address.paymentCreds.hash.toString(),
     validators: {
       registry: {
-        script: tokenRegistryScript.toCbor(),
-        hash: registryPolicy,
+        script: tokenRegistryScript.toCbor().toString(),
+        hash: registryPolicy.toString(),
         address: registryAddr,
       },
       global: {
         script: globalStateScript.toCbor(),
-        hash: globalHash,
+        hash: globalHash.toString(),
         address: globalAddr,
       },
       userState: {
         script: userManagerScript.toCbor(),
-        hash: userPolicy,
+        hash: userPolicy.toString(),
         address: userStateAddr,
       },
       transfer: {
         script: transferManagerScript.toCbor(),
-        hash: transferHash,
+        hash: transferHash.toString(),
         address: registryAddr,
       },
     }
   }
 
-  return writeFile('../validators.json', validators.toString())
-
+  return writeFile('../validators.json', JSON.stringify(validators))
 }
 
