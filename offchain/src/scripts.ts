@@ -9,7 +9,9 @@ import { readFile, writeFile } from 'fs/promises'
 import { wallets } from "./wallets.js";
 
 export function applyMany(func: UPLCTerm, argsData: UPLCConst[]) {
-  for (let i = 0; i < argsData.length; i++) func = new Application(func, argsData[i]);
+  for (let i = 0; i < argsData.length; i++) {
+    func = new Application(func, argsData[i]);
+  }
 
   return func
 }
@@ -40,6 +42,7 @@ export async function makeValidators() {
   const utxos = await blockfrost.addressUtxos(owner.address)
     .catch(e => { throw new Error("unable to find utxos at " + owner.address) });
 
+  console.log(utxos)
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
   const ref = utxo.utxoRef
@@ -99,6 +102,15 @@ export async function makeValidators() {
     Credential.script(transferHash)
   )
 
+  const aTokenParam = UPLCConst.int(1)
+
+  const aTokenScript = new Script(
+    ScriptType.PlutusV3,
+    applyParams(plutus.validators[11].compiledCode, [aTokenParam])
+  )
+
+  const aTokenHash = aTokenScript.hash
+
   const validators = {
     bootOref: ref,
     ownerPkh: owner.address.paymentCreds.hash.toString(),
@@ -109,23 +121,28 @@ export async function makeValidators() {
         address: registryAddr,
       },
       global: {
-        script: globalStateScript.toCbor(),
+        script: globalStateScript.toCbor().toString(),
         hash: globalHash.toString(),
         address: globalAddr,
       },
       userState: {
-        script: userManagerScript.toCbor(),
+        script: userManagerScript.toCbor().toString(),
         hash: userPolicy.toString(),
         address: userStateAddr,
       },
       transfer: {
-        script: transferManagerScript.toCbor(),
+        script: transferManagerScript.toCbor().toString(),
         hash: transferHash.toString(),
-        address: registryAddr,
+        address: transferAddr,
       },
+      aToken: {
+        script: aTokenScript.toCbor().toString(),
+        hash: aTokenHash.toString(),
+      }
     }
   }
 
-  return writeFile('../validators.json', JSON.stringify(validators))
+  // return writeFile('../validators.json', JSON.stringify(validators))
+  return validators
 }
 

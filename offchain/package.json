@@ -10,7 +10,8 @@
     "build:light": "tsc -p ./tsconfig.json",
     "start": "npm run build && node dist/index.js",
     "tx:genKeys": "npm run build:light && node dist/genKeys.js",
-    "make:validators": "npm run build && node dist/scripts.js"
+    "make:validators": "npm run build && node dist/scripts.js",
+    "mint:testTokens": "npm run build && node dist/mintTestSupply.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",

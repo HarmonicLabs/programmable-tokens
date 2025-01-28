@@ -3,7 +3,7 @@ import { Constr, DataB, DataConstr, DataI } from "@harmoniclabs/plu-ts";
 export const dTrue = new DataI(1)
 export const dFalse = new DataI(0)
 
-export const initGlobalDatum = dFalse
+export const initGlobalDatum = new DataConstr(0, [dFalse])
 
 export const freezeGlobalDatum = dTrue
 
