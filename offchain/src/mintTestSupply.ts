@@ -1,4 +1,4 @@
-import { Address, PrivateKey, StakeCredentials, StakeKeyHash, Credential, Script, TxBuilder, Value, StakeCredentialsType, Hash, Hash28, UTxO } from "@harmoniclabs/plu-ts";
+import { Address, PrivateKey, StakeCredentials, StakeKeyHash, Credential, Script, TxBuilder, Value, StakeCredentialsType, Hash, Hash28, UTxO, ScriptType } from "@harmoniclabs/plu-ts";
 import { globalMintAction, initGlobalDatum, userStateDatum, userStateMintAction } from "./datumsRedeemers.js";
 import { readFile } from 'fs/promises'
 import { wallets } from "./wallets.js";
@@ -7,7 +7,7 @@ import { fromHex, fromUtf8 } from "@harmoniclabs/uint8array-utils";
 import { makeValidators } from "./scripts.js";
 
 export async function mintTestSupply() {
-  const validators = await makeValidators()
+  const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const wallet = await wallets()
 
   const global = validators.validators.global
@@ -15,15 +15,16 @@ export async function mintTestSupply() {
   const user = validators.validators.userState
   const transfer = validators.validators.transfer
 
-  const globalScript = Script.fromCbor(global.script)
-  const aTokenScript = Script.fromCbor(aToken.script)
-  const userScript = Script.fromCbor(user.script)
-  const transferScript = Script.fromCbor(transfer.script)
+  const globalScript = new Script(ScriptType.PlutusV3, global.script)
+  const aTokenScript = new Script(ScriptType.PlutusV3, aToken.script)
+  const userScript = new Script(ScriptType.PlutusV3, user.script)
+  const transferScript = transfer.script
 
   const utxos = await blockfrost.addressUtxos(wallet.owner.address)
     .catch(e => { throw new Error("unable to find utxos at " + wallet.owner.address) });
 
-  const utxoIn = utxos[1]//.find(utxo => utxo.utxoRef === validators.bootOref)!;
+  const utxoIn = utxos[0]//.find(utxo => utxo.utxoRef === validators.bootOref)!;
+  console.log(utxoIn.utxoRef.id.toString())
   const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000 && utxo != utxoIn)!;
 
   const aTokenValue = Value.singleAsset(
@@ -58,7 +59,7 @@ export async function mintTestSupply() {
 
   const userValue = Value.singleAsset(
     new Hash28(user.hash),
-    fromHex(wallet.owner.pub),
+    fromHex(wallet.owner.pub.toString()),
     1
   )
 
@@ -83,33 +84,33 @@ export async function mintTestSupply() {
     mints: [{
       value: globalValue,
       script: gMintScript,
-    },
-    {
-      value: userValue,
-      script: uMintScript,
-    },
-    {
-      value: aTokenValue,
-      script: aMintScript,
+      // },
+      // {
+      //   value: userValue,
+      //   script: uMintScript,
+      // },
+      // {
+      //   value: aTokenValue,
+      //   script: aMintScript,
     }],
     outputs: [{
       address: global.address,
       value: Value.add(minUtxo, globalValue),
       datum: initGlobalDatum,
-    },
-    {
-      address: user.address,
-      value: Value.add(minUtxo, userValue),
-      datum: userStateDatum(0, 0, 0, 0),
-    },
-    {
-      address: ownerTransferAddress,
-      value: Value.add(minUtxo, aTokenValue),
+      // },
+      // {
+      //   address: user.address,
+      //   value: Value.add(minUtxo, userValue),
+      //   datum: userStateDatum(0, 0, 0, 0),
+      // },
+      // {
+      //   address: ownerTransferAddress,
+      //   value: Value.add(minUtxo, aTokenValue),
     }],
     requiredSigners: [wallet.owner.pub]
   })
 
-  unsignedTx.signWith(new PrivateKey(wallet.owner.priv))
+  unsignedTx.signWith(wallet.owner.priv)
 
   const submitTx = await blockfrost.submitTx(unsignedTx)
   console.log(`Transaction Submitted: ${submitTx}`)

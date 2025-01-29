@@ -1,6 +1,6 @@
 // import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts";
 // import { fromHex, fromUtf8 } from "@harmoniclabs/uint8array-utils"
-// import { Address, StakeHash, Credential, StakeCredentials, StakeKeyHash, Value, PrivateKey } from "@harmoniclabs/plu-ts";
+// import { Address, StakeHash, Credential, StakeCredentials, StakeKeyHash, Value, PrivateKey, Hash28 } from "@harmoniclabs/plu-ts";
 // import { BrowserWallet, WalletStaticMethods } from "@meshsdk/core";
 // import { getTxBuilder } from "./blockfrost";
 // import { transferSpend, userStateBlacklist } from "./datumsRedeemers";
@@ -15,21 +15,22 @@
 //   const registry = validators.validators.registry
 //   const global = validators.validators.global
 //   const transfer = validators.validators.transfer
+//   const aToken = validators.validators.aToken
 //   const wallet = await wallets()
 
 //   const utxos = await blockfrost.addressUtxos(wallet.user1.address)
 //     .catch(e => { throw new Error("unable to find utxos at " + wallet.user1.address) });
 
 //   const collateralUtxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
-//   const senderStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user1.pub))
-//   const recipientStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user2.pub))
+//   const senderStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user1.pub.toString()))
+//   const recipientStateUtxo = await getAuthUtxoWithName(state.address, state.hash, fromHex(wallet.user2.pub.toString()))
 //   const regUtxo = await getAuthUtxoWithName(registry.address, registry.hash, fromHex(bTokenPolicy))
 //   const globUtxo = await getAuthUtxoWithName(global.address, global.hash, fromUtf8(''))
 
 //   const userTransferAddress = new Address(
 //     "testnet",
 //     Credential.script(transfer.hash),
-//     new StakeCredentials("stakeKey", wallet.user1.pub)
+//     StakeCredentials.keyHash(wallet.user1.pub)
 //   )
 
 //   const inutxo = await blockfrost.addressUtxos(userTransferAddress)
@@ -37,17 +38,17 @@
 //   const recipientAddress = new Address(
 //     "testnet",
 //     Credential.script(transfer.hash),
-//     new StakeCredentials("stakeKey", wallet.user2.pub)
+//     StakeCredentials.keyHash(wallet.user2.pub)
 //   )
 
 //   const outTokenValue = Value.singleAsset(
-//     bTokenPolicy,
+//     new Hash28(aToken.hash),
 //     fromUtf8(''),
 //     100
 //   )
 
 //   const sendValue = Value.singleAsset(
-//     bTokenPolicy,
+//     new Hash28(aToken.hash),
 //     fromUtf8(''),
 //     100
 //   )

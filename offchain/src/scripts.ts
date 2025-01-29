@@ -1,7 +1,7 @@
-import { Address, Credential, DataB, Script, ScriptType } from "@harmoniclabs/plu-ts";
+import { Address, ByteString, Credential, DataB, Script, ScriptType } from "@harmoniclabs/plu-ts";
 import { parseUPLC, compileUPLC, UPLCProgram, Application, UPLCConst } from "@harmoniclabs/uplc"
 import { fromHex } from '@harmoniclabs/uint8array-utils'
-import { Constr, UPLCTerm } from "@harmoniclabs/uplc"
+import { Constr, UPLCTerm, showUPLC } from "@harmoniclabs/uplc"
 import { blockfrost } from "./blockfrost.js";
 import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts";
 import { BrowserWallet } from "@meshsdk/core";
@@ -26,6 +26,13 @@ export function applyParams(compiledCode: string, params: any[]) {
     )
   )
 
+  const res = new UPLCProgram(
+    program.version,
+    applyMany(program.body, params)
+  )
+
+  console.log(showUPLC(res.body))
+
   return fromHex(applied.toBinStr())
 }
 
@@ -35,9 +42,9 @@ export async function makeValidators() {
 
   const owner = wallet.owner
 
-  const hash = fromHex(owner.pub)
+  const hash = owner.pub.toBuffer()
   const hashAsBytes = new DataB(hash)
-  const uplcOwnerHash = UPLCConst.data(hashAsBytes)
+  const uplcOwnerHash = UPLCConst.byteString(new ByteString(hash))
 
   const utxos = await blockfrost.addressUtxos(owner.address)
     .catch(e => { throw new Error("unable to find utxos at " + owner.address) });
@@ -46,15 +53,23 @@ export async function makeValidators() {
   const utxo = utxos.find(utxo => utxo.resolved.value.lovelaces >= 5_000_000)!;
 
   const ref = utxo.utxoRef
-  const refData = ref.toData("v3");
-  const uplcRefData = UPLCConst.data(refData);
+  // const refData = ref.toData("v3");
+  // const uplcRefData = UPLCConst.data(refData);
 
-  console.log(uplcRefData)
+  const refConstr = new Constr(0, [UPLCConst.byteString(new ByteString(ref.id.toBuffer())), UPLCConst.int(ref.index)])
+
+  console.log(refConstr)
+
+  // const globalStateScript =
+  //   new Script(
+  //     ScriptType.PlutusV3,
+  //     applyParams(plutus.validators[0].compiledCode, [uplcRefData, uplcOwnerHash])
+  //   )
 
   const globalStateScript =
     new Script(
       ScriptType.PlutusV3,
-      applyParams(plutus.validators[0].compiledCode, [uplcRefData, uplcOwnerHash])
+      applyParams(plutus.validators[0].compiledCode, [refConstr, uplcOwnerHash])
     )
 
   const globalHash = globalStateScript.hash
@@ -116,33 +131,33 @@ export async function makeValidators() {
     ownerPkh: owner.address.paymentCreds.hash.toString(),
     validators: {
       registry: {
-        script: tokenRegistryScript.toCbor().toString(),
+        script: tokenRegistryScript,
         hash: registryPolicy.toString(),
         address: registryAddr,
       },
       global: {
-        script: globalStateScript.toCbor().toString(),
+        script: globalStateScript,
         hash: globalHash.toString(),
         address: globalAddr,
       },
       userState: {
-        script: userManagerScript.toCbor().toString(),
+        script: userManagerScript,
         hash: userPolicy.toString(),
         address: userStateAddr,
       },
       transfer: {
-        script: transferManagerScript.toCbor().toString(),
+        script: transferManagerScript,
         hash: transferHash.toString(),
         address: transferAddr,
       },
       aToken: {
-        script: aTokenScript.toCbor().toString(),
+        script: aTokenScript,
         hash: aTokenHash.toString(),
       }
     }
   }
 
-  // return writeFile('../validators.json', JSON.stringify(validators))
-  return validators
+  return writeFile('../validators.json', JSON.stringify(validators))
+  // return validators
 }
 

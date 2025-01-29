@@ -7,7 +7,7 @@ use draft/types.{GBurn, GMint, GlobalMintAction}
 
 validator globalState(boot: OutputReference, owner: ByteArray) {
   // globalState refIn w scripts
-  // references withdrawal scripts for various asset functions
+  // references withdrawal scripts for various asset functions - not used here 
   mint(r: GlobalMintAction, p: PolicyId, tx: Transaction) {
     expect [Pair("", supplyQty)] =
       tx.mint

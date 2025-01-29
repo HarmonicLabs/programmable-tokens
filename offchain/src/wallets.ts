@@ -4,13 +4,13 @@ import { readFile } from "fs/promises";
 
 async function getWalletDetails(i: string) {
   const privateKeyFile = await readFile(`./testnet/payment${i}.skey`, { encoding: "utf-8" });
-  const privateKey = PrivateKey.fromCbor(JSON.parse(privateKeyFile).cborHex).toString();
+  const privateKey = PrivateKey.fromCbor(JSON.parse(privateKeyFile).cborHex);
 
   const addr = await readFile(`./testnet/address${i}.addr`, { encoding: "utf-8" });
   const address = Address.fromString(addr);
 
   const publicKeyFile = await readFile(`./testnet/payment${i}.vkey`, { encoding: "utf-8" });
-  const pkh = PublicKey.fromCbor(JSON.parse(publicKeyFile).cborHex).hash.toString();
+  const pkh = PublicKey.fromCbor(JSON.parse(publicKeyFile).cborHex).hash;
 
   return {
     address: address,
