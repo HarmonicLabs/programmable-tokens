@@ -1,6 +1,6 @@
 import { Lucid, Blockfrost, MintingPolicy, applyParamsToScript, applyDoubleCborEncoding, fromText, getAddressDetails, Constr, fromHex, Script, validatorToAddress, validatorToScriptHash, toUnit, Data } from '@lucid-evolution/lucid'
 import { readFile } from 'fs/promises'
-import { blockfrost } from './blockfrost';
+import { blockfrost } from './blockfrost.js';
 
 export async function globalMint() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
@@ -21,13 +21,15 @@ export async function globalMint() {
 
   const mintRedeemer = Data.to(new Constr(0, []))
 
+  const hash = validatorToScriptHash(global.script)
+
   const tx = await lucid
     .newTx()
     .collectFrom([utxo])
     .mintAssets({
-      [toUnit(global.hash, fromText(''))]: 1n
+      [toUnit(hash, fromText(''))]: 1n
     }, mintRedeemer)
-    .pay.ToContract(global.address, { kind: "inline", value: Data.to(BigInt(0)) }, { [toUnit(global.globalCS, fromText(''))]: 1n })
+    .pay.ToContract(global.address, { kind: "inline", value: Data.to(BigInt(0)) }, { [toUnit(hash, fromText(''))]: 1n })
     .attach.MintingPolicy(global.script)
     .complete()
 

@@ -28,6 +28,7 @@ pub type RegistryAction {
   RInsert
   RRemove
   RPrevious
+  BurnHead
 }
 
 pub type RegistryMintAction {

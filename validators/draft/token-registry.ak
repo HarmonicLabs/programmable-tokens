@@ -4,8 +4,8 @@ use cardano/address.{Address, Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
 use draft/types.{
-  RBurn, RInsert, RMint, RPrevious, RRemove, RegistryAction, RegistryDatum,
-  RegistryMintAction,
+  BurnHead, RBurn, RInsert, RMint, RPrevious, RRemove, RegistryAction,
+  RegistryDatum, RegistryMintAction,
 }
 
 validator tokenRegistry {
@@ -72,7 +72,11 @@ validator tokenRegistry {
         expect Some(listOut) =
           list.find(
             tx.outputs,
-            fn(output) { output.value == ownInput.output.value },
+            fn(output) {
+              assets.without_lovelace(output.value) == assets.without_lovelace(
+                ownInput.output.value,
+              )
+            },
           )
         expect InlineDatum(datum) = listOut.datum
         expect outDatum: RegistryDatum = datum
@@ -187,6 +191,23 @@ validator tokenRegistry {
           outDatum.globalStatePolicy == d.globalStatePolicy,
           nextName == d.nextTokenPolicy,
           nextName == burnName,
+        }
+      }
+      BurnHead -> {
+        expect [Pair(tokenName, 1)] =
+          ownInput.output.value
+            |> assets.tokens(ownHash)
+            |> dict.to_pairs()
+
+        // check we are burning one token
+        expect [Pair(burnName, -1)] =
+          tx.mint
+            |> assets.tokens(ownHash)
+            |> dict.to_pairs()
+
+        and {
+          tokenName == burnName,
+          d.nextTokenPolicy == "",
         }
       }
     }

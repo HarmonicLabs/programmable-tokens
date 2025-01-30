@@ -18,6 +18,10 @@ export async function makeValidators() {
   const oref = new Constr(0, [utxo.txHash, BigInt(utxo.outputIndex)])
   // Validators && PolicyIds //
 
+  const aTokenScript = await readTestTokenA()
+  const aTokenCS = mintingPolicyToId(aTokenScript)
+  const bTokenScript = await readTestTokenB()
+  const bTokenCS = mintingPolicyToId(bTokenScript)
   const globalScript = await readGlobalValidator()
   const globalCS = mintingPolicyToId(globalScript)
   const registryScript = await readTokenRegistry()
@@ -25,24 +29,20 @@ export async function makeValidators() {
   const userScript = await readUserStateManager()
   const userCS = mintingPolicyToId(userScript)
   const transferScript = await readTransferManager()
-  const aTokenScript = await readTestTokenA()
-  const aTokenCS = mintingPolicyToId(aTokenScript)
-  const bTokenScript = await readTestTokenB()
-  const bTokenCS = mintingPolicyToId(bTokenScript)
 
   // Validator Addresses //
 
   const globalAddr = validatorToAddress('Preview', globalScript)
-  const registryAddr = validatorToAddress('Preview', globalScript)
-  const userAddr = validatorToAddress('Preview', globalScript)
-  const transferAddr = validatorToAddress('Preview', globalScript)
+  const registryAddr = validatorToAddress('Preview', registryScript)
+  const userAddr = validatorToAddress('Preview', userScript)
+  const transferAddr = validatorToAddress('Preview', transferScript)
 
   // Validator Hashes //
 
   const globalHash = validatorToScriptHash(globalScript)
-  const registryHash = validatorToScriptHash(globalScript)
-  const userHash = validatorToScriptHash(globalScript)
-  const transferHash = validatorToScriptHash(globalScript)
+  const registryHash = validatorToScriptHash(registryScript)
+  const userHash = validatorToScriptHash(userScript)
+  const transferHash = validatorToScriptHash(transferScript)
 
 
   async function readGlobalValidator(): Promise<Script> {
@@ -73,7 +73,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[8];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [ownerPKH]),
+      script: applyParamsToScript(validator.compiledCode, [ownerPKH, aTokenCS]),
     };
   }
 
@@ -94,7 +94,7 @@ export async function makeValidators() {
   }
 
   const validators = {
-    bootOref: { txHash: utxo.txHash, index: utxo.outputIndex },
+    bootOref: { txHash: "2afb3a0aea7ddf7019324e4411c9f31c4758e5000f63d6bb6226ace8e5096bec", index: 0 },
     ownerPkh: ownerPKH,
     scripts: {
       registry: {

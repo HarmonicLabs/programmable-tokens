@@ -1,5 +1,5 @@
-import { Constr, credentialToAddress, Data, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost"
+import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit, validatorToScriptHash } from "@lucid-evolution/lucid"
+import { blockfrost } from "./blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintATestTokens() {
@@ -23,7 +23,9 @@ export async function mintATestTokens() {
       keyHashToCredential(ownerPKH)
     )
 
-  const unit = toUnit(aToken.hash, fromText(''))
+  const hash = validatorToScriptHash(aToken.script)
+
+  const unit = toUnit(hash, fromText(''))
 
   const mintAction = Data.to(new Constr(0, []))
 

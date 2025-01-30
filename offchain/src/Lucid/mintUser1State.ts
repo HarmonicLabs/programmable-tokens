@@ -1,5 +1,5 @@
-import { Constr, Data, getAddressDetails, toUnit } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost"
+import { Constr, Data, getAddressDetails, toUnit, validatorToAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
+import { blockfrost } from "./blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintUser1State() {
@@ -16,7 +16,12 @@ export async function mintUser1State() {
   const utxos = await lucid.utxosAt('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
   const utxo = utxos[0]
 
-  const unit = toUnit(user.hash, ownerPKH)
+  const hash = validatorToScriptHash(user.script)
+  const unit = toUnit(hash, ownerPKH)
+  const userAddress = validatorToAddress(
+    "Preview",
+    user.script
+  )
 
   const userStateMintAction = Data.to(new Constr(0, []))
   const userStateDatum = Data.to(new Constr(0, [0n, 0n, 0n, 0n]))
@@ -29,7 +34,7 @@ export async function mintUser1State() {
     }, userStateMintAction)
     .attach.MintingPolicy(user.script)
     .pay.ToContract(
-      user.address,
+      userAddress,
       { kind: "inline", value: userStateDatum },
       { [unit]: 1n }
     )

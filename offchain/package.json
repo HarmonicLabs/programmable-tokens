@@ -13,7 +13,16 @@
     "make:validators": "npm run build && node dist/scripts.js",
     "mint:testTokens": "npm run build && node dist/mintTestSupply.js",
     "lucid:genCredentials": "npm run build && node dist/Lucid/generateCredentials.js",
-    "lucid:validators": "npm run build && node dist/Lucid/scripts.js"
+    "lucid:validators": "npm run build && node dist/Lucid/scripts.js",
+    "lucid:mintGlobal": "npm run build && node dist/Lucid/mintGlobal.js",
+    "lucid:mintRegistry": "npm run build && node dist/Lucid/mintRegistry.js",
+    "lucid:mintATokens": "npm run build && node dist/Lucid/mintATokens.js",
+    "lucid:mintOwnerState": "npm run build && node dist/Lucid/mintOwnerState.js",
+    "lucid:mintUser1State": "npm run build && node dist/Lucid/mintUser1State.js",
+    "lucid:mintUser2State": "npm run build && node dist/Lucid/mintUser2State.js",
+    "lucid:sendToUser1": "npm run build && node dist/Lucid/sendToUser1.js",
+    "lucid:sendUser1to2": "npm run build && node dist/Lucid/sendUser1to2.js",
+    "lucid:mintInsertRegistry": "npm run build && node dist/Lucid/mintInsertRegistry.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",
