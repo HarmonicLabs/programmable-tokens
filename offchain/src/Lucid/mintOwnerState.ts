@@ -2,13 +2,9 @@ import { Constr, Data, getAddressDetails, toUnit } from "@lucid-evolution/lucid"
 import { blockfrost } from "./blockfrost"
 import { readFile } from 'fs/promises'
 
-export async function mintUserState() {
+export async function mintOwnerState() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
-  const registry = validators.scripts.registry
-  const aToken = validators.scripts.aToken
-  const transfer = validators.scripts.transfer
   const user = validators.scripts.user
-  const global = validators.scripts.global
 
   const lucid = await blockfrost()
 
@@ -48,4 +44,4 @@ export async function mintUserState() {
   return submitTx
 }
 
-mintUserState()
+mintOwnerState()
