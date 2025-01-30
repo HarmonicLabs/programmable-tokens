@@ -9,7 +9,7 @@ import { BlockfrostPluts } from "@harmoniclabs/blockfrost-pluts";
 let _cachedTxBuilder: TxBuilder | undefined = undefined
 
 export const blockfrost = new BlockfrostPluts({
-  projectId: '', // see: https://blockfrost.io
+  projectId: 'previewiKYeItqp0rybitGGcRp3csHYRk01p3fd', // see: https://blockfrost.io
 });
 
 export async function getTxBuilder(blockfrost: BlockfrostPluts): Promise<TxBuilder> {

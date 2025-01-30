@@ -11,7 +11,9 @@
     "start": "npm run build && node dist/index.js",
     "tx:genKeys": "npm run build:light && node dist/genKeys.js",
     "make:validators": "npm run build && node dist/scripts.js",
-    "mint:testTokens": "npm run build && node dist/mintTestSupply.js"
+    "mint:testTokens": "npm run build && node dist/mintTestSupply.js",
+    "lucid:genCredentials": "npm run build && node dist/Lucid/generateCredentials.js",
+    "lucid:validators": "npm run build && node dist/Lucid/scripts.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",

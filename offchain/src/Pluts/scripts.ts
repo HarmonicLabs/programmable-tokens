@@ -1,4 +1,4 @@
-import { Address, ByteString, Credential, DataB, Script, ScriptType } from "@harmoniclabs/plu-ts";
+import { Address, ByteString, Credential, DataB, DataConstr, DataI, Script, ScriptType } from "@harmoniclabs/plu-ts";
 import { parseUPLC, compileUPLC, UPLCProgram, Application, UPLCConst } from "@harmoniclabs/uplc"
 import { fromHex } from '@harmoniclabs/uint8array-utils'
 import { Constr, UPLCTerm, showUPLC } from "@harmoniclabs/uplc"
@@ -8,7 +8,7 @@ import { BrowserWallet } from "@meshsdk/core";
 import { readFile, writeFile } from 'fs/promises'
 import { wallets } from "./wallets.js";
 
-export function applyMany(func: UPLCTerm, argsData: UPLCConst[]) {
+export function applyMany(func: UPLCTerm, argsData: UPLCTerm[]) {
   for (let i = 0; i < argsData.length; i++) {
     func = new Application(func, argsData[i]);
   }
@@ -56,7 +56,7 @@ export async function makeValidators() {
   // const refData = ref.toData("v3");
   // const uplcRefData = UPLCConst.data(refData);
 
-  const refConstr = new Constr(0, [UPLCConst.byteString(new ByteString(ref.id.toBuffer())), UPLCConst.int(ref.index)])
+  const refConstr = new Constr(0, [UPLCConst.byteString(new ByteString(ref.id.toString())), UPLCConst.int(ref.index)])
 
   console.log(refConstr)
 
