@@ -1,4 +1,4 @@
-import { Constr, DataB, DataConstr, DataI } from "@harmoniclabs/plu-ts";
+import { bs, Constr, DataB, DataConstr, DataI, pstruct } from "@harmoniclabs/plu-ts";
 
 export const dTrue = new DataI(1)
 export const dFalse = new DataI(0)
@@ -32,6 +32,16 @@ export function registryDatum(policy: string, next: string, transferHash: string
 
   return datum
 }
+
+// export const pRegistryDatum = pstruct({
+//   Datum: {
+//     tokenPolicy: bs,
+//     nextTokenPolicy: bs,
+//     transferManagerHash: bs,
+//     userStateManagerHash: bs,
+//     globalStatePolicy: bs,
+//   }
+// })
 
 export const registryInsertAction =
   new DataConstr(0, [])

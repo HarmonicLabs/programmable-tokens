@@ -46,7 +46,7 @@ export async function makeValidators() {
 
 
   async function readGlobalValidator(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[13];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [oref, ownerPKH]),
@@ -54,7 +54,7 @@ export async function makeValidators() {
   }
 
   async function readTokenRegistry(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[3];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[16];
     return {
       type: "PlutusV3",
       script: validator.compiledCode,
@@ -62,7 +62,7 @@ export async function makeValidators() {
   }
 
   async function readTransferManager(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[6];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[19];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [registryCS, ownerPKH]),
@@ -70,7 +70,7 @@ export async function makeValidators() {
   }
 
   async function readUserStateManager(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[8];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[21];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [ownerPKH, aTokenCS]),
