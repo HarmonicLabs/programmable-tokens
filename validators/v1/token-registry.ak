@@ -128,13 +128,13 @@ validator tokenRegistry {
         expect newDatum: RegistryDatum = datum
 
         and {
-          newDatum.nextTokenPolicy == "",
-          newDatum.tokenPolicy == newTokenName,
-          outDatum.nextTokenPolicy == newTokenName,
-          d.tokenPolicy == outDatum.tokenPolicy,
-          d.transferManagerHash == outDatum.transferManagerHash,
-          d.userStateManagerHash == outDatum.userStateManagerHash,
-          d.globalStateUnit == outDatum.globalStateUnit,
+          (newDatum.nextTokenPolicy == "")?,
+          (newDatum.tokenPolicy == newTokenName)?,
+          (outDatum.nextTokenPolicy == newTokenName)?,
+          (d.tokenPolicy == outDatum.tokenPolicy)?,
+          (d.transferManagerHash == outDatum.transferManagerHash)?,
+          (d.userStateManagerHash == outDatum.userStateManagerHash)?,
+          (d.globalStateUnit == outDatum.globalStateUnit)?,
         }
       }
       RRemove -> {
