@@ -1,11 +1,14 @@
 use aiken/collection/list
+use aiken/collection/pairs
 use cardano/address.{Address, Inline, Script, VerificationKey}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use draft/types.{ClawBack, RegistryDatum, Spend, TransferAction, UserStateDatum}
 use draft/utils
+use v1/types.{
+  RegistryDatum, ThirdParty, Transfer, TransferAction, UserStateDatum,
+}
 
-validator transferManager(registry: PolicyId, owner: ByteArray) {
+validator transferManager(registry: PolicyId) {
   // change to spend/withdraw
   // withdraw needs if(refInput) {check} else {}
   spend(
@@ -33,93 +36,98 @@ validator transferManager(registry: PolicyId, owner: ByteArray) {
         fn(out) { out.address.payment_credential == ownHash },
       )
 
-    expect Some(registryRef) =
-      list.find(
-        tx.reference_inputs,
-        fn(input) { list.has(assets.policies(input.output.value), registry) },
-      )
-    expect InlineDatum(datum) = registryRef.output.datum
-    expect rDatum: RegistryDatum = datum
-
-    let outTokens =
-      utils.foldPolicyOut(ownOuts, rDatum.tokenPolicy)
-        |> assets.quantity_of(rDatum.tokenPolicy, "")
-
     when r is {
-      Spend -> {
+      Transfer { registryNodes } -> {
         trace @"Spending ..."
-        expect Some(globalRef) =
-          list.find(
-            tx.reference_inputs,
-            fn(input) {
-              list.has(
-                assets.policies(input.output.value),
-                rDatum.globalStatePolicy,
-              )
-            },
-          )
+        list.all(
+          registryNodes,
+          fn(index) {
+            expect Some(registryRef) = list.at(tx.reference_inputs, index)
+            expect InlineDatum(datum) = registryRef.output.datum
+            expect rDatum: RegistryDatum = datum
 
-        expect InlineDatum(datum) = globalRef.output.datum
-        expect gDatum: Int = datum
+            let outTokens =
+              utils.foldPolicyOut(ownOuts, rDatum.tokenPolicy)
+                |> assets.quantity_of(rDatum.tokenPolicy, "")
 
-        // 0 represents False
-        expect gDatum == 0
+            let globalCheck =
+              when rDatum.globalStateUnit is {
+                "" -> True
+                _ -> {
+                  expect Some(globalRef) =
+                    list.find(
+                      tx.reference_inputs,
+                      fn(input) {
+                        list.has(
+                          assets.policies(input.output.value),
+                          rDatum.globalStateUnit,
+                        )
+                      },
+                    )
 
-        // let recCreds =
-        //   list.map(
-        //     ownOuts,
-        //     fn(out) {
-        //       when out.address.stake_credential is {
-        //         Some(hash) -> hash
-        //         None -> fail
-        //       }
-        //     },
-        //   )
-        let ownState = (rDatum.userStateManagerHash, userKey, 1)
+                  expect InlineDatum(datum) = globalRef.output.datum
+                  expect gDatum: Int = datum
 
-        let userRefs =
-          list.filter(
-            tx.reference_inputs,
-            fn(ref) {
-              ref.output.address.payment_credential == Script(
-                rDatum.userStateManagerHash,
-              )
-            },
-          )
-
-        and {
-          outTokens == assets.quantity_of(
-            ownIn.output.value,
-            rDatum.tokenPolicy,
-            "",
-          ),
-          utils.txSignedByStake(ownIns, tx.extra_signatories),
-          list.all(
-            userRefs,
-            fn(user) {
-              expect InlineDatum(datum) = user.output.datum
-              expect uDatum: UserStateDatum = datum
-              // This example requires KYC to spend
-              expect uDatum.kyc == 1
-
-              if list.has(assets.flatten(user.output.value), ownState) {
-                and {
                   // 0 represents False
-                  uDatum.blacklist == 0,
-                  uDatum.freeze == 0,
+                  gDatum == 0
                 }
-              } else {
-                // 0 represents False
-                uDatum.blacklist == 0
               }
-            },
-          ),
-        }
+
+            let ownState = (rDatum.userStateManagerHash, userKey, 1)
+
+            let userRefs =
+              list.filter(
+                tx.reference_inputs,
+                fn(ref) {
+                  ref.output.address.payment_credential == Script(
+                    rDatum.userStateManagerHash,
+                  )
+                },
+              )
+
+            and {
+              outTokens == assets.quantity_of(
+                ownIn.output.value,
+                rDatum.tokenPolicy,
+                "",
+              ),
+              utils.txSignedByStake(ownIns, tx.extra_signatories),
+              list.all(
+                userRefs,
+                fn(user) {
+                  expect InlineDatum(datum) = user.output.datum
+                  expect uDatum: UserStateDatum = datum
+                  // This example requires KYC to spend
+                  expect uDatum.kyc == 1
+
+                  if list.has(assets.flatten(user.output.value), ownState) {
+                    and {
+                      // 0 represents False
+                      uDatum.blacklist == 0,
+                      uDatum.freeze == 0,
+                    }
+                  } else {
+                    // 0 represents False
+                    uDatum.blacklist == 0
+                  }
+                },
+              ),
+              globalCheck == True,
+            }
+          },
+        )
       }
-      ClawBack -> {
-        trace @"Clawing back ..."
-        list.has(tx.extra_signatories, owner)
-      }
+      ThirdParty { registryNodes } ->
+        list.all(
+          registryNodes,
+          fn(index) {
+            expect Some(ref) = list.at(tx.reference_inputs, index)
+
+            expect InlineDatum(datum) = ref.output.datum
+            expect refDatum: RegistryDatum = datum
+            pairs.has_key(tx.withdrawals, Script(refDatum.thirdPartyAction))
+          },
+        )
     }
   }
 
