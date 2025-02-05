@@ -1,5 +1,7 @@
+use aiken/collection/dict
 use aiken/collection/list
 use aiken/collection/pairs
+use aiken/primitive/bytearray
 use cardano/address.{Address, Inline, Script, VerificationKey}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
@@ -54,13 +56,16 @@ validator transferManager(registry: PolicyId) {
               when rDatum.globalStateUnit is {
                 "" -> True
                 _ -> {
+                  let globalPolicy = bytearray.take(rDatum.globalStateUnit, 28)
+                  let globalName = bytearray.drop(rDatum.globalStateUnit, 28)
+
                   expect Some(globalRef) =
                     list.find(
                       tx.reference_inputs,
                       fn(input) {
-                        list.has(
-                          assets.policies(input.output.value),
-                          rDatum.globalStateUnit,
+                        dict.has_key(
+                          assets.tokens(input.output.value, globalPolicy),
+                          globalName,
                         )
                       },
                     )
@@ -91,7 +96,9 @@ validator transferManager(registry: PolicyId) {
                 rDatum.tokenPolicy,
                 "",
               ),
+              // all spenders have signed
               utils.txSignedByStake(ownIns, tx.extra_signatories),
+              // ensure all spender is KYC'd && not Blacklist or Frozen
               list.all(
                 userRefs,
                 fn(user) {
