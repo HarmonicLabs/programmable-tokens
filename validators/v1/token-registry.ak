@@ -128,7 +128,7 @@ validator tokenRegistry {
         expect newDatum: RegistryDatum = datum
 
         and {
-          (newDatum.nextTokenPolicy == "")?,
+          (newDatum.nextTokenPolicy == d.nextTokenPolicy)?,
           (newDatum.tokenPolicy == newTokenName)?,
           (outDatum.nextTokenPolicy == newTokenName)?,
           (d.tokenPolicy == outDatum.tokenPolicy)?,

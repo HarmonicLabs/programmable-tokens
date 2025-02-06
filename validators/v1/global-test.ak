@@ -1,20 +1,54 @@
-// use cardano/transaction.{Transaction, placeholder}
-// use v1/global_state
+use cardano/assets
+use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
+use draft/variables as v
+use tools as t
+use v1/global_state
+use v1/scripts as s
+use v1/types.{GMint, GlobalMintAction, RInsert}
 
-// const globalStateValue = assets.from_asset(#"0000", #"1111", 1)
+test globalMint() {
+  let owner = v.b
+  let bootOref = t.oref(v.a, 1)
 
-// test globalMint() {
-//   let tx =
-//     Transaction {
-//       ..placeholder,
-//       outputs: [],
-//       mint: globalStateValue,
-//       extra_signatories: [owner],
-//     }
+  let bootIn =
+    t.input(
+      bootOref,
+      t.output(
+        t.walletAddress(owner),
+        assets.from_lovelace(1000000000000),
+        NoDatum,
+      ),
+    )
 
-//   globalState.globalState.mint(boot, owner, globalMintAction, p, tx)
-// }
+  let globalMintAction = GMint
+  let globalStateDatum = 0
 
+  let globalValue = t.makeAsset(s.globalState, "", 1)
+
+  let globalOut =
+    t.output(
+      t.scriptAddress(s.globalState),
+      globalValue,
+      InlineDatum(globalStateDatum),
+    )
+
+  let tx =
+    Transaction {
+      ..placeholder,
+      inputs: [bootIn],
+      outputs: [globalOut],
+      mint: globalValue,
+      extra_signatories: [owner],
+    }
+
+  global_state.globalState.mint(
+    bootOref,
+    owner,
+    globalMintAction,
+    s.globalState,
+    tx,
+  )
+}
 // test globalBurn() {
 //   let tx =
 //     Transaction {

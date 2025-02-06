@@ -3,7 +3,7 @@ use aiken/collection/list
 use cardano/address.{Address, Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use draft/types.{GBurn, GMint, GlobalMintAction}
+use v1/types.{GBurn, GMint, GlobalMintAction}
 
 validator globalState(boot: OutputReference, owner: ByteArray) {
   // globalState refIn w scripts
