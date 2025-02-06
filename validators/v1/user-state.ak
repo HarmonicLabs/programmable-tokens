@@ -4,7 +4,7 @@ use aiken/collection/pairs
 use cardano/address.{Address, Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use draft/types.{
+use v1/types.{
   Admin, Blacklist, Burn, Freeze, KYC, UBurn, UMint, UserStateAction,
   UserStateDatum, UserStateMintAction,
 }
@@ -13,19 +13,46 @@ validator userStateManager(owner: ByteArray, _asset: PolicyId) {
   // linked list?
   // user accounts for KYC/blacklisting etc
   mint(r: UserStateMintAction, p: PolicyId, tx: Transaction) {
-    expect [Pair(_userName, _userQty)] =
+    expect [Pair(userName, userQty)] =
       tx.mint
         |> assets.tokens(p)
         |> dict.to_pairs()
 
     when r is {
       UMint -> {
-        trace @"UserStateMint AlwaysSucceeds"
-        True
+        trace @"UserStateMint userName ..."
+        expect Some(stateOut) =
+          list.find(
+            tx.outputs,
+            fn(out) {
+              and {
+                out.address.payment_credential == Script(p),
+                assets.without_lovelace(out.value) == assets.from_asset(
+                  p,
+                  userName,
+                  userQty,
+                ),
+              }
+            },
+          )
+        expect InlineDatum(datum) = stateOut.datum
+        expect sDatum: UserStateDatum = datum
+
+        and {
+          userQty == 1,
+          sDatum.admin == 0,
+          sDatum.kyc == 0,
+          sDatum.blacklist == 0,
+          sDatum.freeze == 0,
+          list.has(tx.extra_signatories, userName),
+        }
       }
       UBurn -> {
         trace @"UserStateBurn AlwaysSucceeds"
-        True
+        and {
+          list.has(tx.extra_signatories, owner),
+          userQty == -1,
+        }
       }
     }
   }
