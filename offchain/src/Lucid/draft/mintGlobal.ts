@@ -1,6 +1,6 @@
 import { Lucid, Blockfrost, MintingPolicy, applyParamsToScript, applyDoubleCborEncoding, fromText, getAddressDetails, Constr, fromHex, Script, validatorToAddress, validatorToScriptHash, toUnit, Data } from '@lucid-evolution/lucid'
 import { readFile } from 'fs/promises'
-import { blockfrost } from './blockfrost.js';
+import { blockfrost } from '../blockfrost.js';
 
 export async function globalMint() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
@@ -16,15 +16,12 @@ export async function globalMint() {
 
   const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
   const utxo = utxos[0]
-  // const id = utxo.txHash
-  // console.log(`
-  //   Save this assetName for Global ${id}
-  //   `)
+
   console.log(utxo)
 
   const mintRedeemer = Data.to(new Constr(0, []))
 
-  const hash = global.hash
+  const hash = validatorToScriptHash(global.script)
 
   const tx = await lucid
     .newTx()

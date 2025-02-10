@@ -19,7 +19,7 @@ export async function mintInsertRegistry() {
   const globalHash = validatorToScriptHash(global.script)
   const userHash = validatorToScriptHash(user.script)
   const transferHash = validatorToScriptHash(transfer.script)
-  const registryAddress = validatorToAddress("Preview", registry.script)
+  const registryAddress = validatorToAddress("Preprod", registry.script)
 
   const lucid = await blockfrost()
 

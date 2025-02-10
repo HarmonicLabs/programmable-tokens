@@ -23,7 +23,11 @@
     "lucid:sendToUser1": "npm run build && node dist/Lucid/sendToUser1.js",
     "lucid:sendUser1to2": "npm run build && node dist/Lucid/sendUser1to2.js",
     "lucid:mintInsertRegistry": "npm run build && node dist/Lucid/mintInsertRegistry.js",
-    "bench:registry": "npm run build && node dist/Pluts/benchmark.js"
+    "bench:registry": "npm run build && node dist/Pluts/benchmark.js",
+    "lucid:stakeScript": "npm run build && node dist/Lucid/registerStakeScript.js",
+    "lucid:kycOwner": "npm run build && node dist/Lucid/kycOwner.js",
+    "lucid:kycUser1": "npm run build && node dist/Lucid/kycUser1.js",
+    "lucid:kycUser2": "npm run build && node dist/Lucid/kycUser2.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",

@@ -1,25 +1,25 @@
 import { Constr, Data, getAddressDetails, toUnit, validatorToAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost.js"
+import { blockfrost } from "../blockfrost.js"
 import { readFile } from 'fs/promises'
 
-export async function mintUser1State() {
+export async function mintUser2State() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const user = validators.scripts.user
 
   const lucid = await blockfrost()
 
-  lucid.selectWallet.fromPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
+  lucid.selectWallet.fromPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
 
-  const ownerPKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
+  const ownerPKH = getAddressDetails('addr_test1vph88mwyh3uf38t4tzedtq9gvszxax4lqnq7wacxjh8uawg3wunka')
     .paymentCredential!.hash;
 
-  const utxos = await lucid.utxosAt('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
+  const utxos = await lucid.utxosAt('addr_test1vph88mwyh3uf38t4tzedtq9gvszxax4lqnq7wacxjh8uawg3wunka')
   const utxo = utxos[0]
 
   const hash = validatorToScriptHash(user.script)
   const unit = toUnit(hash, ownerPKH)
   const userAddress = validatorToAddress(
-    "Preprod",
+    "Preview",
     user.script
   )
 
@@ -38,7 +38,6 @@ export async function mintUser1State() {
       { kind: "inline", value: userStateDatum },
       { [unit]: 1n }
     )
-    .addSignerKey(ownerPKH)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()
@@ -50,4 +49,4 @@ export async function mintUser1State() {
   return submitTx
 }
 
-mintUser1State()
+mintUser2State()

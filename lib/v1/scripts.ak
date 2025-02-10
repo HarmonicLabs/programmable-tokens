@@ -2,10 +2,10 @@ pub const globalState =
   #"80b62989814ab3ff86f64c944203b625a3636d5bf48dafe9bdddac4d"
 
 pub const tokenRegistry =
-  #"703c269313910113761da841d16000c92f64f5ca9f2ea35e77b0c682"
+  #"4d61c46cb8767905b87f7ce8c769e15e8ecfa9d719e76a2bed7f6207"
 
 pub const transferManager =
-  #"654e08949059ea20daa526d6824bda903d121f5b3114ca66f433469f"
+  #"46753bc1bb6de1c2f5fe7b0e2851da8ddaf12eff1871bc1da1357990"
 
 pub const userStateManager =
-  #"b984adfc1971a1c44c366b028aafa393ded4460f67c003375c5353e7"
+  #"30584f3dd3b83cae6bc2c0b0ac0656fd6afb8bcc23bed2551a13754d"

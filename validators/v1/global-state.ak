@@ -37,8 +37,9 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
         expect gDatum: Int = datum
 
         // 0 represents False
-        gDatum == 0
+        gDatum == 0 && supplyQty == 1
       }
+
       // gDatum.actions == actions,
       GBurn -> and {
           supplyQty == -1,

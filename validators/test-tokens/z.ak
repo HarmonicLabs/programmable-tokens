@@ -6,6 +6,10 @@ validator testTokens(_boot: Int) {
     True
   }
 
+  withdraw(_r: Data, _c: Data, _tx: Transaction) {
+    True
+  }
+
   else(_) {
     fail
   }

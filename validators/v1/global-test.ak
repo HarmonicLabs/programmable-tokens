@@ -23,7 +23,7 @@ test globalMint() {
   let globalMintAction = GMint
   let globalStateDatum = 0
 
-  let globalValue = t.makeAsset(s.globalState, "", 1)
+  let globalValue = t.makeAsset(s.globalState, v.id0, 1)
 
   let globalOut =
     t.output(
@@ -55,7 +55,7 @@ test globalFreeze() {
   let bootOref = t.oref(v.id0, 1)
   let oref = t.oref(v.id2, 2)
 
-  let globalValue = t.makeAsset(s.globalState, "", 1)
+  let globalValue = t.makeAsset(s.globalState, v.id2, 1)
 
   let globalFreezeAction = 1
 
@@ -102,7 +102,7 @@ test globalUnfreeze() {
   let bootOref = t.oref(v.id0, 1)
   let oref = t.oref(v.id2, 2)
 
-  let globalValue = t.makeAsset(s.globalState, "", 1)
+  let globalValue = t.makeAsset(s.globalState, v.id2, 1)
 
   let globalDefrostAction = 0
 

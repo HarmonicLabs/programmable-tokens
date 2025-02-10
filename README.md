@@ -24,10 +24,15 @@ utils - Helper functions
 I have some static transactions written in Lucid which I am using for testing. To execute 
 the transactions refer to scripts in `package.json`
 
+Generate credentials with `lucid:genCredentials` and fund them
+
+You will need to first build the scripts `lucid:validators`, 
+then register the withdrawalScript(s) with `lucid:stakeScript`
+
 ### Mint Global
 
 ```
-tx Hash: c3d3b7640639d9d1ba93fb02e8380d266efe308dd7f65c95f57061299bdf75be
+tx Hash: https://preprod.cardanoscan.io/transaction/603660c4ec1a5d48b3d6a2626f029229f3175365c02770d81390c51f5352aafd
 ```
 This had to be done first because I compiled the parameterised validattors and the utxo
 had to be available (and consumed) in the minting transaction.
@@ -35,23 +40,33 @@ had to be available (and consumed) in the minting transaction.
 ### Mint Registry
 
 ```
-tx Hash: 5e637afbb6699687ea060d8a5e8ba66f42958662dbe8ba248b297db415eb210e
+tx Hash: https://preprod.cardanoscan.io/transaction/d60e1814bb3c54dac253eedd36bf7236988d986587716b0102718534a7651e44
 ```
 
 ### Mint User State Tokens
 
 ```
-Owner Tx Hash: 267ea9238ffc1899f08e7532264633689c4ccc05d2a8287b6b9ccf9aa1d282c2
+Owner Tx Hash: https://preprod.cardanoscan.io/transaction/9ddf6bbe018b96b1ba2b9439d79beb69377778d80ce293a639ca962ebd18f6d1
 
-User1 Tx Hash: 12a66734d00b416d3b505e5e742367c0f1c58d6480b427ce13eaf72213262398
+User1 Tx Hash: https://preprod.cardanoscan.io/transaction/b0b890428acec6143e3c937265e9d2bb5f7ff3c3ee12410749f5b75d75f28c52
 
-User2 Tx Hash: c29d816cef61e03b9c44ddb4204b3c06d8dc74232ec030a305d0b285943cbd60
+User2 Tx Hash: https://preprod.cardanoscan.io/transaction/a9404491c1e5459bd68ebec5d9d309ce76477930aa7fb6a466ea1dadc8e5402f
+```
+
+### KYC Users
+
+```
+Owner Tx Hash: https://preprod.cardanoscan.io/transaction/2bd4ddc302f2aa4ae633f2d9aebc23a3699a6fb600251c699c6f6517bdb6de4d
+
+User1 Tx Hash: https://preprod.cardanoscan.io/transaction/8e3d72e584ab1b508aba914f1375190f087f92157a3f8b3e1c288f6c0846d5ec
+
+User2 Tx Hash: https://preprod.cardanoscan.io/transaction/176f0ea57e94fa77fe3f2a021247092000a71a5320971d2bd5f3647d515050e8
 ```
 
 ### Mint ATokens
 
 ```
-Tx Hash: 0e7f0b6361d840bbd9393106c4e68d0065408e50b71324fad418574f43c11265
+Tx Hash: https://preprod.cardanoscan.io/transaction/05d42fc41694160791c4cec79f8df56ee9692931de10b50364b23f4df5d84cb2
 ```
 
 These are dummy tokens registered with the validator.
@@ -62,36 +77,39 @@ of the tests.
 ### Send To User1
 
 ```
-Tx Hash: 8ec569b3832b135c1d90dfe22f99d1348f99989e883c12e96953f4d88e66e3bd
+Tx Hash: https://preprod.cardanoscan.io/transaction/18d840b71f1280949e0dcc9b6033e341cf68817c217849ce56da3bca5e1d1230
 ```
 
 ### Send From User1 To User2
 
 ```
-Tx Hash: 34951b89403131ec4d37f1c43a7aaa30faabca887fa67f142e317de3a9cc9aea
+Tx Hash: https://preprod.cardanoscan.io/transaction/bef4b363806244577d9b14c3a10b0205268c4a1d99ed2946ade8f2570875caaa
 ```
 
-## Transfer Manager
-
-The most important validator here is the TransferManager, it holds the assets.
-Each user UTxO is identified by a StakeCredential that matches the user PKH.
-
-Currently we have a spending validator that forces one in and allows multiple outs.
-
-Spending Checks:
-
-  - Only 1 input
-
-  - All tokens stay in validator
-  
-  - Sender isnt Blacklist or Frozen
-  
-  - No Recipient is blacklisted
-  
-  - globalState isn't frozen
-
-Clawback Checks:
-
-  - tx signed by owner.
-
 ---
+
+## Aiken Tests
+
+```
+    ┍━ v1/global_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 121594, cpu:  39109474] globalMint
+    │ PASS [mem: 110372, cpu:  36210909] globalFreeze
+    │ PASS [mem: 110973, cpu:  36382958] globalUnfreeze
+
+    ┍━ v1/registry_test ━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 478966, cpu: 152799030] mintToEnd
+    │ PASS [mem: 142467, cpu:  44117046] mintHead
+    │ PASS [mem: 486292, cpu: 155911696] mintInsert
+
+    ┍━ v1/transfer_test ━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 660248, cpu: 201875157] sendToOne
+    │ PASS [mem: 729601, cpu: 222140143] sendToMany
+    │ PASS [mem: 922704, cpu: 289982040] sendManyToOne
+
+    ┍━ v1/user_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 141320, cpu:  43959099] mintUserState
+    │ PASS [mem: 136065, cpu:  43815619] makeAdmin
+    │ PASS [mem: 137299, cpu:  44217664] makeKyc
+    │ PASS [mem: 138533, cpu:  44619709] makeBlacklist
+    │ PASS [mem: 139667, cpu:  45005754] makeFreeze
+```

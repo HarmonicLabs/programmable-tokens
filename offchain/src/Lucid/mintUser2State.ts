@@ -19,7 +19,7 @@ export async function mintUser2State() {
   const hash = validatorToScriptHash(user.script)
   const unit = toUnit(hash, ownerPKH)
   const userAddress = validatorToAddress(
-    "Preview",
+    "Preprod",
     user.script
   )
 
@@ -38,6 +38,7 @@ export async function mintUser2State() {
       { kind: "inline", value: userStateDatum },
       { [unit]: 1n }
     )
+    .addSignerKey(ownerPKH)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()

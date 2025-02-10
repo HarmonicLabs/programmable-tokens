@@ -1,5 +1,5 @@
 import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost.js"
+import { blockfrost } from "../blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintATestTokens() {
@@ -18,7 +18,7 @@ export async function mintATestTokens() {
 
   const ownerTransferAddress =
     credentialToAddress(
-      "Preprod",
+      "Preview",
       scriptHashToCredential(transfer.hash),
       keyHashToCredential(ownerPKH)
     )

@@ -19,7 +19,7 @@ export async function blacklistUser() {
   const hash = validatorToScriptHash(user.script)
   const unit = toUnit(hash, userPKH)
   const userAddress = validatorToAddress(
-    "Preview",
+    "Preprod",
     user.script
   )
 

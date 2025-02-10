@@ -1,5 +1,5 @@
 import { Constr, Data, getAddressDetails, toUnit, validatorToAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost.js"
+import { blockfrost } from "../blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintUser1State() {
@@ -19,7 +19,7 @@ export async function mintUser1State() {
   const hash = validatorToScriptHash(user.script)
   const unit = toUnit(hash, ownerPKH)
   const userAddress = validatorToAddress(
-    "Preprod",
+    "Preview",
     user.script
   )
 
@@ -38,7 +38,6 @@ export async function mintUser1State() {
       { kind: "inline", value: userStateDatum },
       { [unit]: 1n }
     )
-    .addSignerKey(ownerPKH)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()

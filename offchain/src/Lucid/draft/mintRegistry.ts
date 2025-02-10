@@ -1,5 +1,5 @@
 import { Constr, Data, fromHex, fromText, getAddressDetails, toUnit, validatorToAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost.js"
+import { blockfrost } from "../blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintInitRegistry() {
@@ -14,9 +14,7 @@ export async function mintInitRegistry() {
   const globalHash = validatorToScriptHash(global.script)
   const userHash = validatorToScriptHash(user.script)
   const transferHash = validatorToScriptHash(transfer.script)
-  const registryAddress = validatorToAddress("Preprod", registry.script)
-
-  const thirdPartyHash = aTokenHash
+  const registryAddress = validatorToAddress("Preview", registry.script)
 
   const lucid = await blockfrost()
 
@@ -29,10 +27,10 @@ export async function mintInitRegistry() {
   const utxo = utxos[0]
 
   const registryMintAction =
-    Data.to(new Constr(0, [aTokenHash, transferHash, userHash, globalHash, thirdPartyHash]))
+    Data.to(new Constr(0, [aTokenHash, transferHash, userHash, globalHash]))
 
   const registryDatum =
-    Data.to(new Constr(0, [aTokenHash, fromText(''), transferHash, userHash, globalHash, thirdPartyHash]))
+    Data.to(new Constr(0, [aTokenHash, fromText(''), transferHash, userHash, globalHash]))
 
   const unit = toUnit(registryHash, aTokenHash)
 

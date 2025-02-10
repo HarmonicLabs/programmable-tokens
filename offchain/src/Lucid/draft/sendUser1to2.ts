@@ -1,5 +1,5 @@
-import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit, validatorToAddress, validatorToRewardAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "./blockfrost.js"
+import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit, validatorToAddress, validatorToScriptHash } from "@lucid-evolution/lucid"
+import { blockfrost } from "../blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function sendToUser1to2() {
@@ -23,22 +23,19 @@ export async function sendToUser1to2() {
   const transferHash = validatorToScriptHash(transfer.script)
   const userHash = validatorToScriptHash(user.script)
 
-  const transferAddr = validatorToAddress("Preprod", transfer.script)
-  const transferStake = validatorToRewardAddress("Preprod", transfer.script)
-
   const userAddress = validatorToAddress(
-    "Preprod",
+    "Preview",
     user.script
   )
 
   const registryAddress = validatorToAddress(
-    "Preprod",
+    "Preview",
     registry.script
   )
 
   const user1TransferAddress =
     credentialToAddress(
-      "Preprod",
+      "Preview",
       scriptHashToCredential(transferHash),
       keyHashToCredential(user1PKH)
     )
@@ -52,7 +49,7 @@ export async function sendToUser1to2() {
 
   const user2TransferAddress =
     credentialToAddress(
-      "Preprod",
+      "Preview",
       scriptHashToCredential(transferHash),
       keyHashToCredential(user2PKH)
     )
@@ -64,16 +61,11 @@ export async function sendToUser1to2() {
   const user2State = toUnit(userHash, user2PKH)
 
   const registryUtxo = await lucid.utxosAtWithUnit(registryAddress, registryToken)
-  console.log(`Registry UTxO: ${registryUtxo[0].txHash}`)
   const globalUtxo = await lucid.utxosAtWithUnit(global.address, globalToken)
-  console.log(`Global UTxO: ${globalUtxo[0].txHash}`)
   const user1StateUtxo = await lucid.utxosAtWithUnit(userAddress, user1State)
-  console.log(`User1State UTxO: ${user1StateUtxo[0].txHash}`)
   const user2StateUtxo = await lucid.utxosAtWithUnit(userAddress, user2State)
-  console.log(`User2State UTxO: ${user2StateUtxo[0].txHash}`)
 
   const transferAction = Data.to(new Constr(0, []))
-  const withdrawRedeemer = Data.to(new Constr(0, [[BigInt(3)]]))
 
   const tx = await lucid
     .newTx()
@@ -82,8 +74,6 @@ export async function sendToUser1to2() {
     .pay.ToAddress(user1TransferAddress, { [unit]: 50n })
     .pay.ToAddress(user2TransferAddress, { [unit]: 50n })
     .attach.SpendingValidator(transfer.script)
-    .withdraw(transferStake, 0n, withdrawRedeemer)
-    .attach.WithdrawalValidator(transfer.script)
     .addSignerKey(user1PKH)
     .complete()
 

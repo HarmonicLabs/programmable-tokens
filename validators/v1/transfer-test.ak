@@ -1,3 +1,4 @@
+use cardano/address.{Script}
 use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use draft/scripts as s
 use draft/variables as v
@@ -92,6 +93,7 @@ test sendToOne() {
     )
 
   let transferAction = Transfer([0])
+  let withdraw0 = t.withdrawal(s.transferManager)
 
   let tx =
     Transaction {
@@ -100,15 +102,18 @@ test sendToOne() {
       outputs: [userOut, rec1],
       reference_inputs: [registryRef, globalRef, userRef, recRef],
       extra_signatories: [user],
+      withdrawals: withdraw0,
     }
 
-  transfer_manager.transferManager.spend(
-    s.tokenRegistry,
-    None,
-    transferAction,
-    oref,
-    tx,
-  )
+  and {
+    transfer_manager.transferManager.spend(s.tokenRegistry, None, 0, oref, tx),
+    transfer_manager.transferManager.withdraw(
+      s.tokenRegistry,
+      transferAction,
+      Script(s.transferManager),
+      tx,
+    ),
+  }
 }
 
 test sendToMany() {
@@ -205,6 +210,7 @@ test sendToMany() {
     )
 
   let transferAction = Transfer([0])
+  let withdraw0 = t.withdrawal(s.transferManager)
 
   let tx =
     Transaction {
@@ -213,15 +219,18 @@ test sendToMany() {
       outputs: [userOut, rec1, rec2],
       reference_inputs: [registryRef, globalRef, userRef, recRef],
       extra_signatories: [user],
+      withdrawals: withdraw0,
     }
 
-  transfer_manager.transferManager.spend(
-    s.tokenRegistry,
-    None,
-    transferAction,
-    oref,
-    tx,
-  )
+  and {
+    transfer_manager.transferManager.spend(s.tokenRegistry, None, 0, oref, tx),
+    transfer_manager.transferManager.withdraw(
+      s.tokenRegistry,
+      transferAction,
+      Script(s.transferManager),
+      tx,
+    ),
+  }
 }
 
 test sendManyToOne() {
@@ -333,6 +342,7 @@ test sendManyToOne() {
     )
 
   let transferAction = Transfer([0])
+  let withdraw0 = t.withdrawal(s.transferManager)
 
   let tx =
     Transaction {
@@ -341,28 +351,17 @@ test sendManyToOne() {
       outputs: [userOut, rec1],
       reference_inputs: [registryRef, globalRef, userRef, recRef],
       extra_signatories: [user],
+      withdrawals: withdraw0,
     }
 
   and {
-    transfer_manager.transferManager.spend(
+    transfer_manager.transferManager.spend(s.tokenRegistry, None, 0, oref1, tx),
+    transfer_manager.transferManager.spend(s.tokenRegistry, None, 0, oref2, tx),
+    transfer_manager.transferManager.spend(s.tokenRegistry, None, 0, oref3, tx),
+    transfer_manager.transferManager.withdraw(
       s.tokenRegistry,
-      None,
       transferAction,
-      oref1,
-      tx,
-    ),
-    transfer_manager.transferManager.spend(
-      s.tokenRegistry,
-      None,
-      transferAction,
-      oref2,
-      tx,
-    ),
-    transfer_manager.transferManager.spend(
-      s.tokenRegistry,
-      None,
-      transferAction,
-      oref3,
+      Script(s.transferManager),
       tx,
     ),
   }
