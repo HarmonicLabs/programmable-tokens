@@ -57,7 +57,8 @@ validator account {
           list.length(policyList) == list.length(registryNodes),
         }
       }
-      ThirdParty { registryNodes } -> and {
+      ThirdParty { registryNodes } -> {
+        let boolList =
           list.map2(
             registryNodes,
             policyList,
@@ -75,10 +76,14 @@ validator account {
                 ),
               }
             },
-          ),
+          )
+
+        and {
+          list.unique(boolList) == [True],
           // check all policies match registries
           list.length(policyList) == list.length(registryNodes),
         }
+      }
     }
   }
 
