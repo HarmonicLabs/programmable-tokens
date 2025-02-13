@@ -36,12 +36,14 @@ validator transferManager(
         asset,
         1,
       )
+
     expect InlineDatum(datum) = registryRef.output.datum
     expect rDatum: RegistryDatum = datum
     // fold outputValue for assets
     let outTokens =
       utils.foldPolicyOut(ownOuts, rDatum.tokenPolicy)
         |> assets.quantity_of(rDatum.tokenPolicy, "")
+
     let inTokens =
       utils.foldPolicyIn(ownIns, rDatum.tokenPolicy)
         |> assets.quantity_of(rDatum.tokenPolicy, "")
@@ -86,8 +88,8 @@ validator transferManager(
       )
 
     and {
-      // all spenders have signed
-      utils.txSignedByStake(ownIns, tx.extra_signatories),
+      // // all spenders have signed
+      // utils.txSignedByStake(ownIns, tx.extra_signatories),
       // ensure all spender is KYC'd && not Blacklist or Frozen
       list.all(
         userRefs,
