@@ -1,9 +1,20 @@
+use aiken/collection/list
+use cardano/address.{Inline, Script, VerificationKey}
+use cardano/assets.{PolicyId}
+use cardano/transaction.{InlineDatum, OutputReference, Transaction}
+use v1/types.{RegistryDatum, ThirdParty, Transfer, TransferAction}
+
 // NOTE: There is a potential problem here where one ThirdParty script relies on another
 // in order to override some UTxO. This could result in utxos that are unspendable by 
 // a ThirdParty, if the UTxO has multiple assets in it.
 
 validator account {
-  spend(_d: Option<Data>, r: TransferAction, oref: OutputReference, tx: Transaction) {
+  spend(
+    _d: Option<Data>,
+    r: TransferAction,
+    oref: OutputReference,
+    tx: Transaction,
+  ) {
     expect Some(ownIn) =
       list.find(tx.inputs, fn(in) { in.output_reference == oref })
 
@@ -11,12 +22,13 @@ validator account {
     expect Some(Inline(VerificationKey(owner))) =
       ownIn.output.address.stake_credential
 
-    let policyList = assets.policies(assets.without_lovelace(ownIn))
+    let policyList =
+      assets.policies(assets.without_lovelace(ownIn.output.value))
 
     when r is {
       // registry nodes need to be in lexOrder to map with policyList
       Transfer { registryNodes } -> {
-        and {
+        let boolList =
           list.map2(
             registryNodes,
             policyList,
@@ -29,18 +41,23 @@ validator account {
                 // policy matches registry
                 polI == rDatum.tokenPolicy,
                 // transferManager withdraws
-                list.has(tx.withdrawals, Pair(rDatum.transferManager, 0)),
+                list.has(
+                  tx.withdrawals,
+                  Pair(Script(rDatum.transferManagerHash), 0),
+                ),
               }
             },
           )
+
+        and {
+          list.unique(boolList) == [True],
           // account owner signs Tx
           list.has(tx.extra_signatories, owner),
           // check all policies match registries
-          list.length(policyList) == list.length(registryNodes)
+          list.length(policyList) == list.length(registryNodes),
         }
       }
-      ThirdParty { registryNodes } ->
-        and {
+      ThirdParty { registryNodes } -> and {
           list.map2(
             registryNodes,
             policyList,
@@ -52,12 +69,15 @@ validator account {
 
               and {
                 polI == rDatum.tokenPolicy,
-                list.has(tx.withdrawals, Pair(rDatum.thirdPartyAction, 0))
+                list.has(
+                  tx.withdrawals,
+                  Pair(Script(rDatum.thirdPartyAction), 0),
+                ),
               }
             },
           ),
           // check all policies match registries
-          list.length(policyList) == list.length(registryNodes)
+          list.length(policyList) == list.length(registryNodes),
         }
     }
   }

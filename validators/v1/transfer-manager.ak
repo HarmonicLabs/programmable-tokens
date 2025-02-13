@@ -19,19 +19,19 @@ validator transferManager(
     let ownIns =
       list.filter(
         tx.inputs,
-        fn(in) { in.output.address.payment_credential == account },
+        fn(in) { in.output.address.payment_credential == Script(account) },
       )
 
     let ownOuts =
       list.filter(
         tx.outputs,
-        fn(out) { out.address.payment_credential == account },
+        fn(out) { out.address.payment_credential == Script(account) },
       )
 
     // Get our registry RefInput && Datum
     expect Some(registryRef) = list.at(tx.reference_inputs, r)
     expect
-      assets.without_lovelace(registryRef) == assets.from_asset(
+      assets.without_lovelace(registryRef.output.value) == assets.from_asset(
         registry,
         asset,
         1,
@@ -88,8 +88,6 @@ validator transferManager(
       )
 
     and {
-      // // all spenders have signed
-      // utils.txSignedByStake(ownIns, tx.extra_signatories),
       // ensure all spender is KYC'd && not Blacklist or Frozen
       list.all(
         userRefs,
