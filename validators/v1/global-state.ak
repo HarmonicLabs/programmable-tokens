@@ -9,7 +9,7 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
   // globalState refIn w scripts
   // references withdrawal scripts for various asset functions - not used here 
   mint(r: GlobalMintAction, p: PolicyId, tx: Transaction) {
-    expect [Pair("", supplyQty)] =
+    expect [Pair(assetP, supplyQty)] =
       tx.mint
         |> assets.tokens(p)
         |> dict.to_pairs()
@@ -27,7 +27,7 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
                 out.address.payment_credential == Script(p),
                 assets.without_lovelace(out.value) == assets.from_asset(
                   p,
-                  "",
+                  assetP,
                   1,
                 ),
               }

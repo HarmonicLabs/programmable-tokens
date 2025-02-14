@@ -4,7 +4,9 @@ import { readFile } from 'fs/promises'
 
 export async function mintUser2State() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
-  const user = validators.scripts.user
+  const aUser = validators.scripts.aUser
+  const bUser = validators.scripts.bUser
+  const cUser = validators.scripts.cUser
 
   const lucid = await blockfrost()
 
@@ -16,11 +18,25 @@ export async function mintUser2State() {
   const utxos = await lucid.utxosAt('addr_test1vph88mwyh3uf38t4tzedtq9gvszxax4lqnq7wacxjh8uawg3wunka')
   const utxo = utxos[0]
 
-  const hash = validatorToScriptHash(user.script)
-  const unit = toUnit(hash, ownerPKH)
-  const userAddress = validatorToAddress(
+  const aHash = validatorToScriptHash(aUser.script)
+  const aUnit = toUnit(aHash, ownerPKH)
+  const aUserAddress = validatorToAddress(
     "Preprod",
-    user.script
+    aUser.script
+  )
+
+  const bHash = validatorToScriptHash(bUser.script)
+  const bUnit = toUnit(bHash, ownerPKH)
+  const bUserAddress = validatorToAddress(
+    "Preprod",
+    bUser.script
+  )
+
+  const cHash = validatorToScriptHash(cUser.script)
+  const cUnit = toUnit(cHash, ownerPKH)
+  const cUserAddress = validatorToAddress(
+    "Preprod",
+    cUser.script
   )
 
   const userStateMintAction = Data.to(new Constr(0, []))
@@ -30,13 +46,31 @@ export async function mintUser2State() {
     .newTx()
     .collectFrom([utxo])
     .mintAssets({
-      [unit]: 1n
+      [aUnit]: 1n
     }, userStateMintAction)
-    .attach.MintingPolicy(user.script)
+    .mintAssets({
+      [bUnit]: 1n
+    }, userStateMintAction)
+    .mintAssets({
+      [cUnit]: 1n
+    }, userStateMintAction)
+    .attach.MintingPolicy(aUser.script)
     .pay.ToContract(
-      userAddress,
+      aUserAddress,
       { kind: "inline", value: userStateDatum },
-      { [unit]: 1n }
+      { [aUnit]: 1n }
+    )
+    .attach.MintingPolicy(bUser.script)
+    .pay.ToContract(
+      bUserAddress,
+      { kind: "inline", value: userStateDatum },
+      { [bUnit]: 1n }
+    )
+    .attach.MintingPolicy(cUser.script)
+    .pay.ToContract(
+      cUserAddress,
+      { kind: "inline", value: userStateDatum },
+      { [cUnit]: 1n }
     )
     .addSignerKey(ownerPKH)
     .complete()

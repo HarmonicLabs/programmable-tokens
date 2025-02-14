@@ -5,25 +5,25 @@ import { readFile } from 'fs/promises'
 export async function mintATestTokens() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const account = validatorToScriptHash(validators.scripts.account.script)
-  const aToken = validators.scripts.aToken
+  const bToken = validators.scripts.bToken
   const lucid = await blockfrost()
 
-  lucid.selectWallet.fromPrivateKey('ed25519_sk16pq9yuhe4vxq3raxqh3jkngdrep9lm85qkpfjeradelrecs8mvlq6w4wjf')
+  lucid.selectWallet.fromPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
 
-  const ownerPKH = getAddressDetails('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
+  const user1PKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
     .paymentCredential!.hash;
 
-  const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
+  const utxos = await lucid.utxosAt('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
   const utxo = utxos[0]
 
   const ownerTransferAddress =
     credentialToAddress(
       "Preprod",
       scriptHashToCredential(account),
-      keyHashToCredential(ownerPKH)
+      keyHashToCredential(user1PKH)
     )
 
-  const hash = validatorToScriptHash(aToken.script)
+  const hash = validatorToScriptHash(bToken.script)
 
   const unit = toUnit(hash, fromText(''))
 
@@ -33,7 +33,7 @@ export async function mintATestTokens() {
     .newTx()
     .collectFrom([utxo])
     .mintAssets({ [unit]: 1000n }, mintAction)
-    .attach.MintingPolicy(aToken.script)
+    .attach.MintingPolicy(bToken.script)
     .pay.ToAddress(ownerTransferAddress, { [unit]: 1000n })
     .complete()
 

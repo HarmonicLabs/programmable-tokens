@@ -4,23 +4,39 @@ import { readFile } from 'fs/promises'
 
 export async function mintUser1State() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
-  const user = validators.scripts.user
+  const aUser = validators.scripts.aUser
+  const bUser = validators.scripts.bUser
+  const cUser = validators.scripts.cUser
 
   const lucid = await blockfrost()
 
   lucid.selectWallet.fromPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
 
-  const ownerPKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
+  const userPKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
     .paymentCredential!.hash;
 
   const utxos = await lucid.utxosAt('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
   const utxo = utxos[0]
 
-  const hash = validatorToScriptHash(user.script)
-  const unit = toUnit(hash, ownerPKH)
-  const userAddress = validatorToAddress(
+  const aHash = validatorToScriptHash(aUser.script)
+  const aUnit = toUnit(aHash, userPKH)
+  const aUserAddress = validatorToAddress(
     "Preprod",
-    user.script
+    aUser.script
+  )
+
+  const bHash = validatorToScriptHash(bUser.script)
+  const bUnit = toUnit(bHash, userPKH)
+  const bUserAddress = validatorToAddress(
+    "Preprod",
+    bUser.script
+  )
+
+  const cHash = validatorToScriptHash(cUser.script)
+  const cUnit = toUnit(cHash, userPKH)
+  const cUserAddress = validatorToAddress(
+    "Preprod",
+    cUser.script
   )
 
   const userStateMintAction = Data.to(new Constr(0, []))
@@ -30,15 +46,33 @@ export async function mintUser1State() {
     .newTx()
     .collectFrom([utxo])
     .mintAssets({
-      [unit]: 1n
+      [aUnit]: 1n
     }, userStateMintAction)
-    .attach.MintingPolicy(user.script)
+    .mintAssets({
+      [bUnit]: 1n
+    }, userStateMintAction)
+    .mintAssets({
+      [cUnit]: 1n
+    }, userStateMintAction)
+    .attach.MintingPolicy(aUser.script)
     .pay.ToContract(
-      userAddress,
+      aUserAddress,
       { kind: "inline", value: userStateDatum },
-      { [unit]: 1n }
+      { [aUnit]: 1n }
     )
-    .addSignerKey(ownerPKH)
+    .attach.MintingPolicy(bUser.script)
+    .pay.ToContract(
+      bUserAddress,
+      { kind: "inline", value: userStateDatum },
+      { [bUnit]: 1n }
+    )
+    .attach.MintingPolicy(cUser.script)
+    .pay.ToContract(
+      cUserAddress,
+      { kind: "inline", value: userStateDatum },
+      { [cUnit]: 1n }
+    )
+    .addSignerKey(userPKH)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()

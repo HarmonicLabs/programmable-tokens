@@ -4,10 +4,14 @@ import { readFile } from 'fs/promises'
 
 export async function registerStake() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
-  const transfer = validators.scripts.transfer
+  const aTransfer = validators.scripts.aTransfer.script
+  const bTransfer = validators.scripts.bTransfer.script
+  const cTransfer = validators.scripts.cTransfer.script
   const thirdParty = validators.scripts.thirdParty
-  const transferAddr = validatorToRewardAddress("Preprod", transfer.script)
-  console.log(`transferRewardAddress: ${transferAddr}`)
+  const aTransferAddr = validatorToRewardAddress("Preprod", aTransfer)
+  const bTransferAddr = validatorToRewardAddress("Preprod", bTransfer)
+  const cTransferAddr = validatorToRewardAddress("Preprod", cTransfer)
+  console.log(`transferRewardAddress: ${cTransferAddr}`)
   const thirdPartyAddr = validatorToRewardAddress("Preprod", thirdParty.script)
   const lucid = await blockfrost()
 
@@ -16,7 +20,9 @@ export async function registerStake() {
   const tx = await lucid
     .newTx()
     // transferAddr | thirdPartyAddr
-    .registerStake(transferAddr)
+    // .registerStake(aTransferAddr)
+    // .registerStake(bTransferAddr)
+    .registerStake(cTransferAddr)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()
@@ -26,6 +32,7 @@ export async function registerStake() {
   console.log(submitTx)
 
   return submitTx
+  // return
 }
 
 registerStake()

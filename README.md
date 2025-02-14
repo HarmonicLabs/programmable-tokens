@@ -4,19 +4,6 @@ programmable token standard - development & testing
 
 This repo is a WIP of CIP-113 implementation
 
----
-
-## Draft
-
-This contains a full set of validators as a WIP, and will include tests for them as a starting point for working on this CIP
-
-```
-draft.ak - Validator mockup
-draft-test - TODO: Benchmark tests
-types - Datum/Redeemer Types
-utils - Helper functions
-```
-
 --- 
 
 ## Testing
@@ -27,46 +14,104 @@ the transactions refer to scripts in `package.json`
 Generate credentials with `lucid:genCredentials` and fund them
 
 You will need to first build the scripts `lucid:validators`, 
+> Note: Take down the logged token policies
+> You will need to make sure they are inserted into the list lexicographically
+
+```
+// A is the HEAD of the registry here, you may need to adjust the registry Tx's
+AToken: d88150ea550dc3ddaef71eb582a365d740cf2ac1d65740659bff9f5a
+BToken: a724a26f6840a7a263357f93296115a948f5d8ea7d33f5627ac55311
+CToken: 7d4917c0fb86660e29cc3625c097f514af597a2b80b968a4ea2e1dfd
+```
+
 then register the withdrawalScript(s) with `lucid:stakeScript`
+
+```
+aTransferAddress:
+stake_test17zjpjy0gdy5wzqlnk2lz7d5akr5mx3k5y60mw20gwplrrhq7uxexj
+
+tx Hash: https://preprod.cardanoscan.io/transaction/1c5f1e62ab84393574eb8688c2343a5d855e0f12e1a613baafdd4f88599f7fad
+
+bTransferAddress:
+stake_test17p8deyjfhjcq37mfrdk59gwujzsghgs8x7dyhwl36uer9zsm5vepc
+
+tx Hash: https://preprod.cardanoscan.io/transaction/1c5f1e62ab84393574eb8688c2343a5d855e0f12e1a613baafdd4f88599f7fad
+
+cTransferAddress:
+stake_test17zprcyrxz62mmvfhf9euk4xf8kc29frd05afjfkfv8yg2lqy3mlf8
+
+tx Hash: https://preprod.cardanoscan.io/transaction/2f09d66260f65ae3844455b2455ac08fdf291f363b8e484b4b9fca87bfe13834
+```
+
+We will mint 3 different assets for this test and try out several transactions with
+various amounts, so we can understand the impact on exUnits.
+So we will need to register 3 TransferManagerScripts
 
 ### Mint Global
 
 ```
-tx Hash: https://preprod.cardanoscan.io/transaction/603660c4ec1a5d48b3d6a2626f029229f3175365c02770d81390c51f5352aafd
+A Global:
+tx Hash: https://preprod.cardanoscan.io/transaction/8b2f11146722ce26134b6dad0526ca582051a22232a70f561401be918d923269
+
+B Global:
+tx Hash: https://preprod.cardanoscan.io/transaction/c8b56478b78dc156e85f500c8d96de7fedac73ed51507edd3fbd2dd1c9b73857
+
+C Global:
+tx Hash: https://preprod.cardanoscan.io/transaction/5beca31dda3ee89c64e101155ec558384727973e010ad80ed3aafbf0199fc4fe
 ```
-This had to be done first because I compiled the parameterised validattors and the utxo
+This had to be done first because I compiled the parameterised validators and the utxo
 had to be available (and consumed) in the minting transaction.
 
 ### Mint Registry
 
 ```
-tx Hash: https://preprod.cardanoscan.io/transaction/d60e1814bb3c54dac253eedd36bf7236988d986587716b0102718534a7651e44
+CToken Registry
+tx Hash: https://preprod.cardanoscan.io/transaction/2200a894d946272414b03426032136c56fa1012805a56a5beac96ed3fc85b7a0
+
+BToken Registry
+tx Hash: https://preprod.cardanoscan.io/transaction/443fc4f304bdad23a7e2e01093ac49e07613511356a560d40d8c67bac2444161
+
+AToken Registry
+tx Hash: https://preprod.cardanoscan.io/transaction/82966a1a009122a3c827a2a2717490770b6bf73a8bea2574e779d143fcb53dc4
 ```
 
 ### Mint User State Tokens
 
 ```
-Owner Tx Hash: https://preprod.cardanoscan.io/transaction/9ddf6bbe018b96b1ba2b9439d79beb69377778d80ce293a639ca962ebd18f6d1
+Owner States for each token
+Tx Hash: https://preprod.cardanoscan.io/transaction/6370136900d61671f5dd97e442ddff85edacc53803cbddc4a0655c35e995ef7a
 
-User1 Tx Hash: https://preprod.cardanoscan.io/transaction/b0b890428acec6143e3c937265e9d2bb5f7ff3c3ee12410749f5b75d75f28c52
+User1 
+Tx Hash: https://preprod.cardanoscan.io/transaction/4ceb74fa888844d22e1f1dbf548b06a8311804eb41147b978a55121f532f40df
 
-User2 Tx Hash: https://preprod.cardanoscan.io/transaction/a9404491c1e5459bd68ebec5d9d309ce76477930aa7fb6a466ea1dadc8e5402f
+User2 
+Tx Hash: https://preprod.cardanoscan.io/transaction/a9404491c1e5459bd68ebec5d9d309ce76477930aa7fb6a466ea1dadc8e5402f
 ```
 
 ### KYC Users
 
 ```
-Owner Tx Hash: https://preprod.cardanoscan.io/transaction/2bd4ddc302f2aa4ae633f2d9aebc23a3699a6fb600251c699c6f6517bdb6de4d
+KYC All aToken UserStates 
+Tx Hash: https://preprod.cardanoscan.io/transaction/d967197a361459949c6c5a6e478701cf9f2f54ce3f7bf4a4a5b9be0b528283e1
 
-User1 Tx Hash: https://preprod.cardanoscan.io/transaction/8e3d72e584ab1b508aba914f1375190f087f92157a3f8b3e1c288f6c0846d5ec
+KYC All bToken UserStates
+Tx Hash: https://preprod.cardanoscan.io/transaction/0f1110b73de5a33d6d6e54f30396690b9d9de7dd6777cb9a101baa2540da837b
 
-User2 Tx Hash: https://preprod.cardanoscan.io/transaction/176f0ea57e94fa77fe3f2a021247092000a71a5320971d2bd5f3647d515050e8
+KYC All cToken UserStates
+Tx Hash: https://preprod.cardanoscan.io/transaction/a11f1a39a8538d11dc73c5e46698f811ff5030087552c11896c625cb45620858
 ```
 
-### Mint ATokens
+### Mint Programmable Tokens
 
 ```
-Tx Hash: https://preprod.cardanoscan.io/transaction/05d42fc41694160791c4cec79f8df56ee9692931de10b50364b23f4df5d84cb2
+aTokens
+Tx Hash: https://preprod.cardanoscan.io/transaction/2be0562393849eb1d2fc2c6a11cb3cdd9e7df006dbd6a86719cb1caeb5354b90
+
+bTokens
+Tx Hash: https://preprod.cardanoscan.io/transaction/f631a868232cde89b996720d04ec88f50e18fe466ea03c6347e9ea11ac48c463
+
+cTokens
+Tx Hash: https://preprod.cardanoscan.io/transaction/5576f5c3da965c20ff9c527060f48d3e771304dc1a92947797b6122f59aa0be9
 ```
 
 These are dummy tokens registered with the validator.

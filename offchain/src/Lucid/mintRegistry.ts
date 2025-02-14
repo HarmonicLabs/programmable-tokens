@@ -5,18 +5,18 @@ import { readFile } from 'fs/promises'
 export async function mintInitRegistry() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const registry = validators.scripts.registry
-  const aToken = validators.scripts.aToken
-  const transfer = validators.scripts.transfer
-  const user = validators.scripts.user
-  const global = validators.scripts.global
-  const aTokenHash = validatorToScriptHash(aToken.script)
+  const cToken = validators.scripts.cToken
+  const transfer = validators.scripts.cTransfer
+  const user = validators.scripts.cUser
+  const global = validators.scripts.cGlobal
+  const cTokenHash = validatorToScriptHash(cToken.script)
   const registryHash = validatorToScriptHash(registry.script)
   const globalHash = validatorToScriptHash(global.script)
   const userHash = validatorToScriptHash(user.script)
   const transferHash = validatorToScriptHash(transfer.script)
   const registryAddress = validatorToAddress("Preprod", registry.script)
 
-  const thirdPartyHash = aTokenHash
+  const thirdPartyHash = cTokenHash
 
   const lucid = await blockfrost()
 
@@ -29,12 +29,12 @@ export async function mintInitRegistry() {
   const utxo = utxos[0]
 
   const registryMintAction =
-    Data.to(new Constr(0, [aTokenHash, transferHash, userHash, globalHash, thirdPartyHash]))
+    Data.to(new Constr(0, [cTokenHash, transferHash, userHash, globalHash, thirdPartyHash]))
 
   const registryDatum =
-    Data.to(new Constr(0, [aTokenHash, fromText(''), transferHash, userHash, globalHash, thirdPartyHash]))
+    Data.to(new Constr(0, [cTokenHash, fromText(''), transferHash, userHash, globalHash, thirdPartyHash]))
 
-  const unit = toUnit(registryHash, aTokenHash)
+  const unit = toUnit(registryHash, cTokenHash)
 
   const tx = await lucid
     .newTx()

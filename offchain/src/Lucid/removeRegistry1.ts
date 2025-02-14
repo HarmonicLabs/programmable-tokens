@@ -8,17 +8,26 @@ export async function mintInsertRegistry() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
 
   const registry = validators.scripts.registry
+  const account = validators.scripts.account
   const aToken = validators.scripts.aToken
   const bToken = validators.scripts.bToken
-  const transfer = validators.scripts.transfer
-  const user = validators.scripts.user
-  const global = validators.scripts.global
+  const aTransfer = validators.scripts.aTransfer
+  const bTransfer = validators.scripts.bTransfer
+  const aUser = validators.scripts.aUser
+  const bUser = validators.scripts.bUser
+  const aGlobal = validators.scripts.aGlobal
+  const bGlobal = validators.scripts.bGlobal
   const aTokenHash = validatorToScriptHash(aToken.script)
+  console.log(aTokenHash)
   const bTokenHash = validatorToScriptHash(bToken.script)
+  console.log(bTokenHash)
   const registryHash = validatorToScriptHash(registry.script)
-  const globalHash = validatorToScriptHash(global.script)
-  const userHash = validatorToScriptHash(user.script)
-  const transferHash = validatorToScriptHash(transfer.script)
+  const aGlobalHash = validatorToScriptHash(aGlobal.script)
+  const aUserHash = validatorToScriptHash(aUser.script)
+  const aTransferHash = validatorToScriptHash(aTransfer.script)
+  const bGlobalHash = validatorToScriptHash(bGlobal.script)
+  const bUserHash = validatorToScriptHash(bUser.script)
+  const bTransferHash = validatorToScriptHash(bTransfer.script)
   const registryAddress = validatorToAddress("Preprod", registry.script)
 
   const lucid = await blockfrost()
@@ -31,54 +40,37 @@ export async function mintInsertRegistry() {
   const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
   const utxo = utxos[0]
 
-  const DatumSchema = Data.Object({
-    policy: Data.Bytes(),
-    prev: Data.Bytes(),
-    transfer: Data.Bytes(),
-    user: Data.Bytes(),
-    global: Data.Bytes(),
-  });
-  type DatumType = Data.Static<typeof DatumSchema>;
-  const DatumType = DatumSchema as unknown as DatumType;
-
-  const prevUnit = toUnit(registryHash, aTokenHash)
+  const prevUnit = toUnit(registryHash, bTokenHash)
   const registryIn = await lucid.utxosAtWithUnit(registryAddress, prevUnit)
-  const inDatum = Data.from(registryIn[0].datum!, DatumType);
-  const inTokenHash = inDatum.policy
-  console.log(inDatum)
-  console.log(inTokenHash)
 
-  const insertAction =
-    Data.to(new Constr(0, []))
+  const burnAction =
+    Data.to(new Constr(1, []))
 
-  const prevDatum = Data.to(new Constr(0, [
-    inDatum.policy,
-    bTokenHash,
-    inDatum.transfer,
-    inDatum.user,
-    inDatum.global
-  ]))
+  const prevAction =
+    Data.to(new Constr(2, []))
+
+  const bRegistryDatum =
+    Data.to(new Constr(0, [bTokenHash, fromText(''), bTransferHash, bUserHash, bGlobalHash, bTokenHash]))
 
   const registryMintAction =
-    Data.to(new Constr(0, [bTokenHash, transferHash, userHash, globalHash]))
+    Data.to(new Constr(1, []))
 
-  const registryDatum =
-    Data.to(new Constr(0, [bTokenHash, fromText(''), transferHash, userHash, globalHash]))
-
-  const unit = toUnit(registryHash, bTokenHash)
+  const unit = toUnit(registryHash, aTokenHash)
+  const registryBurn = await lucid.utxosAtWithUnit(registryAddress, unit)
 
   console.log(registryIn[0])
+  console.log(registryBurn[0])
 
   const tx = await lucid
     .newTx()
     .collectFrom([utxo])
-    .collectFrom([registryIn[0]], insertAction)
+    .collectFrom([registryIn[0]], prevAction)
+    .collectFrom([registryBurn[0]], burnAction)
     .mintAssets({
-      [unit]: 1n,
+      [unit]: -1n,
     }, registryMintAction)
     .attach.MintingPolicy(registry.script)
-    .pay.ToContract(registryAddress, { kind: "inline", value: registryDatum }, { [unit]: 1n })
-    .pay.ToContract(registryAddress, { kind: "inline", value: prevDatum }, { [prevUnit]: 1n })
+    .pay.ToContract(registryAddress, { kind: "inline", value: bRegistryDatum }, { [prevUnit]: 1n })
     .attach.SpendingValidator(registry.script)
     .addSignerKey(ownerPKH)
     .complete()

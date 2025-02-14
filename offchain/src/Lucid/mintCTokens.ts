@@ -1,29 +1,29 @@
 import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails, keyHashToCredential, scriptHashToCredential, toUnit, validatorToScriptHash } from "@lucid-evolution/lucid"
-import { blockfrost } from "../blockfrost.js"
+import { blockfrost } from "./blockfrost.js"
 import { readFile } from 'fs/promises'
 
 export async function mintATestTokens() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
-  const transfer = validators.scripts.transfer
-  const aToken = validators.scripts.aToken
   const lucid = await blockfrost()
+  const account = validatorToScriptHash(validators.scripts.account.script)
+  const cToken = validators.scripts.cToken
 
-  lucid.selectWallet.fromPrivateKey('ed25519_sk16pq9yuhe4vxq3raxqh3jkngdrep9lm85qkpfjeradelrecs8mvlq6w4wjf')
+  lucid.selectWallet.fromPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
 
-  const ownerPKH = getAddressDetails('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
+  const user2PKH = getAddressDetails('addr_test1vph88mwyh3uf38t4tzedtq9gvszxax4lqnq7wacxjh8uawg3wunka')
     .paymentCredential!.hash;
 
-  const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
+  const utxos = await lucid.utxosAt('addr_test1vph88mwyh3uf38t4tzedtq9gvszxax4lqnq7wacxjh8uawg3wunka')
   const utxo = utxos[0]
 
   const ownerTransferAddress =
     credentialToAddress(
-      "Preview",
-      scriptHashToCredential(transfer.hash),
-      keyHashToCredential(ownerPKH)
+      "Preprod",
+      scriptHashToCredential(account),
+      keyHashToCredential(user2PKH)
     )
 
-  const hash = validatorToScriptHash(aToken.script)
+  const hash = validatorToScriptHash(cToken.script)
 
   const unit = toUnit(hash, fromText(''))
 
@@ -33,7 +33,7 @@ export async function mintATestTokens() {
     .newTx()
     .collectFrom([utxo])
     .mintAssets({ [unit]: 1000n }, mintAction)
-    .attach.MintingPolicy(aToken.script)
+    .attach.MintingPolicy(cToken.script)
     .pay.ToAddress(ownerTransferAddress, { [unit]: 1000n })
     .complete()
 

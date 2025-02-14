@@ -32,29 +32,29 @@ validator account {
           list.map2(
             registryNodes,
             policyList,
-            fn(regI, polI) {
+            fn(regI, polI) -> Bool {
               // Get our registry RefInput && Datum
               expect Some(registryRef) = list.at(tx.reference_inputs, regI)
               expect InlineDatum(datum) = registryRef.output.datum
               expect rDatum: RegistryDatum = datum
-              and {
-                // policy matches registry
-                polI == rDatum.tokenPolicy,
-                // transferManager withdraws
+              // policy matches registry
+              expect polI == rDatum.tokenPolicy
+              // transferManager withdraws
+              expect
                 list.has(
                   tx.withdrawals,
                   Pair(Script(rDatum.transferManagerHash), 0),
-                ),
-              }
+                )
+              True
             },
           )
 
         and {
-          list.unique(boolList) == [True],
+          (list.unique(boolList) == [True])?,
           // account owner signs Tx
-          list.has(tx.extra_signatories, owner),
+          list.has(tx.extra_signatories, owner)?,
           // check all policies match registries
-          list.length(policyList) == list.length(registryNodes),
+          (list.length(policyList) == list.length(registryNodes))?,
         }
       }
       ThirdParty { registryNodes } -> {
@@ -68,13 +68,13 @@ validator account {
               expect InlineDatum(datum) = registryRef.output.datum
               expect rDatum: RegistryDatum = datum
 
-              and {
-                polI == rDatum.tokenPolicy,
+              expect polI == rDatum.tokenPolicy
+              expect
                 list.has(
                   tx.withdrawals,
                   Pair(Script(rDatum.thirdPartyAction), 0),
-                ),
-              }
+                )
+              True
             },
           )
 
