@@ -10,22 +10,22 @@ export async function mintInsertRegistry() {
   const registry = validators.scripts.registry
   const account = validators.scripts.account
   const aToken = validators.scripts.aToken
-  const bToken = validators.scripts.bToken
+  const cToken = validators.scripts.cToken
   const aTransfer = validators.scripts.aTransfer
-  const bTransfer = validators.scripts.bTransfer
+  const cTransfer = validators.scripts.cTransfer
   const aUser = validators.scripts.aUser
-  const bUser = validators.scripts.bUser
+  const cUser = validators.scripts.cUser
   const aGlobal = validators.scripts.aGlobal
-  const bGlobal = validators.scripts.bGlobal
+  const cGlobal = validators.scripts.cGlobal
   const aTokenHash = validatorToScriptHash(aToken.script)
-  const bTokenHash = validatorToScriptHash(bToken.script)
+  const cTokenHash = validatorToScriptHash(cToken.script)
   const registryHash = validatorToScriptHash(registry.script)
   const aGlobalHash = validatorToScriptHash(aGlobal.script)
   const aUserHash = validatorToScriptHash(aUser.script)
   const aTransferHash = validatorToScriptHash(aTransfer.script)
-  const bGlobalHash = validatorToScriptHash(bGlobal.script)
-  const bUserHash = validatorToScriptHash(bUser.script)
-  const bTransferHash = validatorToScriptHash(bTransfer.script)
+  const cGlobalHash = validatorToScriptHash(cGlobal.script)
+  const cUserHash = validatorToScriptHash(cUser.script)
+  const cTransferHash = validatorToScriptHash(cTransfer.script)
   const registryAddress = validatorToAddress("Preprod", registry.script)
 
   const lucid = await blockfrost()
@@ -38,37 +38,25 @@ export async function mintInsertRegistry() {
   const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
   const utxo = utxos[0]
 
-  // const DatumSchema = Data.Object({
-  //   policy: Data.Bytes(),
-  //   next: Data.Bytes(),
-  //   transfer: Data.Bytes(),
-  //   user: Data.Bytes(),
-  //   global: Data.Bytes(),
-  //   third: Data.Bytes(),
-  // });
-  // type DatumType = Data.Static<typeof DatumSchema>;
-  // const DatumType = DatumSchema as unknown as DatumType;
-
-  const prevUnit = toUnit(registryHash, bTokenHash)
+  const prevUnit = toUnit(registryHash, aTokenHash)
   const registryIn = await lucid.utxosAtWithUnit(registryAddress, prevUnit)
-  // const inDatum = Data.from(registryIn[0].datum!, DatumType);
-  // const inTokenHash = inDatum.policy
-  // console.log(inDatum)
-  // console.log(inTokenHash)
+
+  const aGlobalUnit = toUnit(aGlobalHash, aTokenHash)
+  const cGlobalUnit = toUnit(cGlobalHash, cTokenHash)
 
   const insertAction =
     Data.to(new Constr(0, []))
 
-  const bRegistryDatum =
-    Data.to(new Constr(0, [bTokenHash, aTokenHash, bTransferHash, bUserHash, bGlobalHash, bTokenHash]))
+  const aRegistryDatum =
+    Data.to(new Constr(0, [aTokenHash, cTokenHash, aTransferHash, aUserHash, aGlobalUnit, aTokenHash]))
 
   const registryMintAction =
-    Data.to(new Constr(0, [aTokenHash, aTransferHash, aUserHash, aGlobalHash, aTokenHash]))
+    Data.to(new Constr(0, [cTokenHash, cTransferHash, cUserHash, cGlobalUnit, cTokenHash]))
 
-  const aRegistryDatum =
-    Data.to(new Constr(0, [aTokenHash, fromText(''), aTransferHash, aUserHash, aGlobalHash, aTokenHash]))
+  const cRegistryDatum =
+    Data.to(new Constr(0, [cTokenHash, fromText(''), cTransferHash, cUserHash, cGlobalUnit, cTokenHash]))
 
-  const unit = toUnit(registryHash, aTokenHash)
+  const unit = toUnit(registryHash, cTokenHash)
 
   console.log(registryIn[0])
 
@@ -80,8 +68,8 @@ export async function mintInsertRegistry() {
       [unit]: 1n,
     }, registryMintAction)
     .attach.MintingPolicy(registry.script)
-    .pay.ToContract(registryAddress, { kind: "inline", value: aRegistryDatum }, { [unit]: 1n })
-    .pay.ToContract(registryAddress, { kind: "inline", value: bRegistryDatum }, { [prevUnit]: 1n })
+    .pay.ToContract(registryAddress, { kind: "inline", value: cRegistryDatum }, { [unit]: 1n })
+    .pay.ToContract(registryAddress, { kind: "inline", value: aRegistryDatum }, { [prevUnit]: 1n })
     .attach.SpendingValidator(registry.script)
     .addSignerKey(ownerPKH)
     .complete()

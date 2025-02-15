@@ -161,7 +161,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(3)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(6)]),
     };
   }
 
@@ -169,7 +169,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(4)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(7)]),
     };
   }
 
@@ -177,7 +177,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(5)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(8)]),
     };
   }
 

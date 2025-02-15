@@ -32,7 +32,8 @@
     "lucid:nativeToken": "npm run build && node dist/Lucid/nativeToken.js",
     "lucid:removeRegistry1": "npm run build && node dist/Lucid/removeRegistry1.js",
     "lucid:removeRegistry2": "npm run build && node dist/Lucid/removeRegistry2.js",
-    "lucid:removeHead": "npm run build && node dist/Lucid/burnHead.js"
+    "lucid:removeHead": "npm run build && node dist/Lucid/burnHead.js",
+    "lucid:splitUtxos": "npm run build && node dist/Lucid/splitUtxos.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",
@@ -40,10 +41,6 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@harmoniclabs/blockfrost-pluts": "^0.1.16",
-    "@harmoniclabs/buildooor": "^0.1.0",
-    "@harmoniclabs/plu-ts": "^0.9.0",
-    "@lucid-evolution/lucid": "^0.4.22",
-    "@meshsdk/core": "^1.8.13"
+    "@lucid-evolution/lucid": "^0.4.22"
   }
 }

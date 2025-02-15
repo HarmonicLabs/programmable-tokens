@@ -6,7 +6,7 @@ use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, Input, OutputReference, Transaction}
 use v1/types.{
   BurnHead, RBurn, RInsert, RMint, RPrevious, RRemove, RegistryAction,
-  RegistryDatum, RegistryMintAction,
+  RegistryDatum, RegistryMintAction, OverRide,
 }
 
 validator tokenRegistry {
@@ -245,6 +245,10 @@ validator tokenRegistry {
           tokenName == burnName,
           d.nextTokenPolicy == "",
         }
+      }
+      OverRide -> {
+        // For testing purposes only
+        True
       }
     }
   }

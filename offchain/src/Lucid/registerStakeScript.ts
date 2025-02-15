@@ -11,7 +11,7 @@ export async function registerStake() {
   const aTransferAddr = validatorToRewardAddress("Preprod", aTransfer)
   const bTransferAddr = validatorToRewardAddress("Preprod", bTransfer)
   const cTransferAddr = validatorToRewardAddress("Preprod", cTransfer)
-  console.log(`transferRewardAddress: ${cTransferAddr}`)
+  console.log(`transferRewardAddress: ${aTransferAddr}`)
   const thirdPartyAddr = validatorToRewardAddress("Preprod", thirdParty.script)
   const lucid = await blockfrost()
 
@@ -20,9 +20,9 @@ export async function registerStake() {
   const tx = await lucid
     .newTx()
     // transferAddr | thirdPartyAddr
-    // .registerStake(aTransferAddr)
-    // .registerStake(bTransferAddr)
-    .registerStake(cTransferAddr)
+    .registerStake(aTransferAddr)
+    //.registerStake(bTransferAddr)
+    //    .registerStake(cTransferAddr)
     .complete()
 
   const signedTx = await tx.sign.withWallet().complete()
@@ -32,7 +32,7 @@ export async function registerStake() {
   console.log(submitTx)
 
   return submitTx
-  // return
+  //return
 }
 
 registerStake()

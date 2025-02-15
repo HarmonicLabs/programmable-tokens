@@ -32,6 +32,7 @@ pub type RegistryAction {
   RRemove
   RPrevious
   BurnHead
+  OverRide // For testing ONLY
 }
 
 pub type RegistryMintAction {
