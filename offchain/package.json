@@ -33,7 +33,9 @@
     "lucid:removeRegistry1": "npm run build && node dist/Lucid/removeRegistry1.js",
     "lucid:removeRegistry2": "npm run build && node dist/Lucid/removeRegistry2.js",
     "lucid:removeHead": "npm run build && node dist/Lucid/burnHead.js",
-    "lucid:splitUtxos": "npm run build && node dist/Lucid/splitUtxos.js"
+    "lucid:splitUtxos": "npm run build && node dist/Lucid/splitUtxos.js",
+    "lucid:splitAssetUtxos": "npm run build && node dist/Lucid/splitAssetUtxos",
+    "lucid:multiInUtxos": "npm run build && node dist/Lucid/multiInUtxo"
   },
   "author": "Rhys Morgan",
   "license": "ISC",

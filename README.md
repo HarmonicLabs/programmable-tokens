@@ -148,6 +148,50 @@ User 1 manages `bToken` and sends 100 to each of the others.
 
 User 2 manages `cTokens` and does the same
 
+### Split Asset UTxOs
+
+```
+TxHash: https://preprod.cardanoscan.io/transaction/532858a1cb6de515d945a755850fc3d9712ea598fd5290a576b8930907d0a896
+```
+
+This transaction splits 1 utxo into 5 smaller ones, 4 x 100n && 1 x 400n
+
+SPEND
+Mem: 128859
+Steps: 44128994
+
+WITHDRAW
+Mem: 849843
+Steps: 268837240
+
+### Collect multiUTxOs Send To One
+
+```
+TxHash: https://preprod.cardanoscan.io/transaction/fb953215bdf53d2f43da1cfd6246cebb80e017405351d2f35c0a007fa3720683
+``` 
+
+This UTXO collects 4 inputs and sends the total to User1
+
+Spend
+Mem: 128859
+Steps: 44128994
+
+Spend
+Mem: 132753
+Steps: 46706471
+
+Spend
+Mem: 136647
+Steps: 49283948
+
+Spend
+Mem: 140541
+Steps: 51861425
+
+Withdraw
+Mem: 755773
+Steps: 239760035
+
 ### Send To User1
 
 ```
