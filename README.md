@@ -132,15 +132,8 @@ AllSendToAll
 TxHash: https://preprod.cardanoscan.io/transaction/83eb33894b3171951faa83917f8be45f68202d7acb86cd42bc13e813628c9075
 ```
 
-Max mem 12500000
-Max steps 10000000000
-
-Tx mem 5653004
-Tx steps 1838937675
-
-45.224032
-18.389377
-
+Tx mem   5653004    (45.22%)
+Tx steps 1838937675 (18.39%)
 
 Owner manages `aToken` and sends 100n to each of the Users.
 
@@ -156,13 +149,8 @@ TxHash: https://preprod.cardanoscan.io/transaction/532858a1cb6de515d945a755850fc
 
 This transaction splits 1 utxo into 5 smaller ones, 4 x 100n && 1 x 400n
 
-SPEND
-Mem: 128859
-Steps: 44128994
-
-WITHDRAW
-Mem: 849843
-Steps: 268837240
+Total Mem:   978702     (7.83%)
+Total Steps: 312966234  (3.12%)
 
 ### Collect multiUTxOs Send To One
 
@@ -172,63 +160,70 @@ TxHash: https://preprod.cardanoscan.io/transaction/fb953215bdf53d2f43da1cfd6246c
 
 This UTXO collects 4 inputs and sends the total to User1
 
-Spend
-Mem: 128859
-Steps: 44128994
+Total Mem:   1294573    (10.36%)
+Total Steps: 431740873  (4.32%)
 
-Spend
-Mem: 132753
-Steps: 46706471
-
-Spend
-Mem: 136647
-Steps: 49283948
-
-Spend
-Mem: 140541
-Steps: 51861425
-
-Withdraw
-Mem: 755773
-Steps: 239760035
-
-### Send To User1
+### Multi Asset Outputs
 
 ```
-Tx Hash: https://preprod.cardanoscan.io/transaction/18d840b71f1280949e0dcc9b6033e341cf68817c217849ce56da3bca5e1d1230
+TxHash: https://preprod.cardanoscan.io/transaction/b468a6150fcb995b84849d1926a6fe2ee5d9d9996b27ddcb40d78c8f1acb8715
 ```
 
-### Send From User1 To User2
+This transaction has multi-asset outputs, 2 programmable tokens in one output.
+
+Total Mem: 2241340     (17.93%)
+Total Steps: 731866858 (7.32%)
+
+### Send 1 Asset From MultiAssetUTxO
 
 ```
-Tx Hash: https://preprod.cardanoscan.io/transaction/bef4b363806244577d9b14c3a10b0205268c4a1d99ed2946ade8f2570875caaa
+TxHash: https://preprod.cardanoscan.io/transaction/27918e84c782983a10f85df8acfc405bdc7596017d492994e070297e084a3e67
 ```
+
+In this transaction we send 1 of 2 programmable tokens at a UTxO to User2, returning the remaining asset to origin
+
+Total Mem: 1687169     (13.5%)
+Total Steps: 560767003 (5.61%)
 
 ---
 
 ## Aiken Tests
 
-```
-    ┍━ v1/global_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    │ PASS [mem: 121594, cpu:  39109474] globalMint
-    │ PASS [mem: 110372, cpu:  36210909] globalFreeze
-    │ PASS [mem: 110973, cpu:  36382958] globalUnfreeze
+```sh
+    ┍━ v1/account_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 1154137, cpu: 346129447] sendToOne_Inclusive
+    │ PASS [mem:  288588, cpu:  83023472] sendToOne
+    │ PASS [mem:  212460, cpu:  59781557] sendToOneFail
+    │ | the validator crashed / exited prematurely
+    │ | expect rDatum: RegistryDatum = datum
+    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3 tests | 3 passed | 0 failed
 
-    ┍━ v1/registry_test ━━━━━━━━━━━━━━━━━━━━━━━━━━
-    │ PASS [mem: 478966, cpu: 152799030] mintToEnd
-    │ PASS [mem: 142467, cpu:  44117046] mintHead
-    │ PASS [mem: 486292, cpu: 155911696] mintInsert
 
-    ┍━ v1/transfer_test ━━━━━━━━━━━━━━━━━━━━━━━━━━
-    │ PASS [mem: 660248, cpu: 201875157] sendToOne
-    │ PASS [mem: 729601, cpu: 222140143] sendToMany
-    │ PASS [mem: 922704, cpu: 289982040] sendManyToOne
+    ┍━ v1/global_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem:  114545, cpu:  36907036] globalMint
+    │ PASS [mem:  110372, cpu:  36210909] globalFreeze
+    │ PASS [mem:  110973, cpu:  36382958] globalUnfreeze
+    ┕━━━━━━━━━━━━━━━━━━━━━ 3 tests | 3 passed | 0 failed
 
-    ┍━ v1/user_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    │ PASS [mem: 141320, cpu:  43959099] mintUserState
-    │ PASS [mem: 136065, cpu:  43815619] makeAdmin
-    │ PASS [mem: 137299, cpu:  44217664] makeKyc
-    │ PASS [mem: 138533, cpu:  44619709] makeBlacklist
-    │ PASS [mem: 139667, cpu:  45005754] makeFreeze
+
+    ┍━ v1/registry_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem:  478966, cpu: 152799030] mintToEnd
+    │ PASS [mem:  142467, cpu:  44117046] mintHead
+    │ PASS [mem:  486292, cpu: 155911696] mintInsert
+    ┕━━━━━━━━━━━━━━━━━ 3 tests | 3 passed | 0 failed
+
+
+    ┍━ v1/transfer_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem: 1013266, cpu: 300885845] sendToOne
+    ┕━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1 tests | 1 passed | 0 failed
+
+
+    ┍━ v1/user_test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │ PASS [mem:  141320, cpu:  43959099] mintUserState
+    │ PASS [mem:  136065, cpu:  43815619] makeAdmin
+    │ PASS [mem:  137299, cpu:  44217664] makeKyc
+    │ PASS [mem:  138533, cpu:  44619709] makeBlacklist
+    │ PASS [mem:  139667, cpu:  45005754] makeFreeze
+    ┕━━━━━━━━━━━━━━━━━━━━ 5 tests | 5 passed | 0 failed
 ```
 

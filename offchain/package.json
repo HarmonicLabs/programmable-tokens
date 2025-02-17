@@ -35,7 +35,8 @@
     "lucid:removeHead": "npm run build && node dist/Lucid/burnHead.js",
     "lucid:splitUtxos": "npm run build && node dist/Lucid/splitUtxos.js",
     "lucid:splitAssetUtxos": "npm run build && node dist/Lucid/splitAssetUtxos",
-    "lucid:multiInUtxos": "npm run build && node dist/Lucid/multiInUtxo"
+    "lucid:multiInUtxos": "npm run build && node dist/Lucid/multiInUtxo",
+    "lucid:send1Of": "npm run build && node dist/Lucid/send1Of.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",

@@ -2,7 +2,7 @@ import { blockfrost } from './blockfrost.js'
 import { readFile } from 'fs/promises'
 import { validatorToAddress, fromText, validatorToScriptHash, validatorToRewardAddress, credentialToAddress, scriptHashToCredential, keyHashToCredential, getAddressDetails, toUnit, Data, Constr } from '@lucid-evolution/lucid'
 
-export async function multiAssetUtxos() {
+export async function send1Of() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const v = validators.scripts
   const lucid = await blockfrost()
@@ -58,42 +58,39 @@ export async function multiAssetUtxos() {
   const bUser2State = toUnit(bUserHash, user2PKH)
 
   const aRegistryUtxo = await lucid.utxosAtWithUnit(registryAddress, aRegistryToken)
-  console.log(`ARegistry UTxO: ${aRegistryUtxo[0].txHash}`)
+  // console.log(`ARegistry UTxO: ${aRegistryUtxo[0].txHash}`)
   //  console.log(aRegistryUtxo)
   const aGlobalUtxo = await lucid.utxosAtWithUnit(aGlobalAddress, aGlobalToken)
-  console.log(`Global UTxO: ${aGlobalUtxo[0].txHash}`)
+  // console.log(`Global UTxO: ${aGlobalUtxo[0].txHash}`)
   //  console.log(aGlobalUtxo)
   const aUser1StateUtxo = await lucid.utxosAtWithUnit(aUserAddress, aUser1State)
-  console.log(`User1State UTxO: ${aUser1StateUtxo[0].txHash}`)
+  // console.log(`User1State UTxO: ${aUser1StateUtxo[0].txHash}`)
   //  console.log(aUser1StateUtxo)
   const aUser2StateUtxo = await lucid.utxosAtWithUnit(aUserAddress, aUser2State)
-  console.log(`User2State UTxO: ${aUser2StateUtxo[0].txHash}`)
+  // console.log(`User2State UTxO: ${aUser2StateUtxo[0].txHash}`)
   //  console.log(aUser2StateUtxo)
   const bRegistryUtxo = await lucid.utxosAtWithUnit(registryAddress, bRegistryToken)
-  console.log(`BRegistry UTxO: ${bRegistryUtxo[0].txHash}`)
+  // console.log(`BRegistry UTxO: ${bRegistryUtxo[0].txHash}`)
   //  console.log(bRegistryUtxo)
   const bGlobalUtxo = await lucid.utxosAtWithUnit(bGlobalAddress, bGlobalToken)
-  console.log(`Global UTxO: ${bGlobalUtxo[0].txHash}`)
+  // console.log(`Global UTxO: ${bGlobalUtxo[0].txHash}`)
   //  console.log(bGlobalUtxo)
   const bUser1StateUtxo = await lucid.utxosAtWithUnit(bUserAddress, bUser1State)
-  console.log(`User1State UTxO: ${bUser1StateUtxo[0].txHash}`)
+  // console.log(`User1State UTxO: ${bUser1StateUtxo[0].txHash}`)
   //  console.log(bUser1StateUtxo)
   const bUser2StateUtxo = await lucid.utxosAtWithUnit(bUserAddress, bUser2State)
-  console.log(`User2State UTxO: ${bUser2StateUtxo[0].txHash}`)
+  // console.log(`User2State UTxO: ${bUser2StateUtxo[0].txHash}`)
   //  console.log(bUser2StateUtxo)
 
-  const aTransferAction = Data.to(new Constr(0, [[BigInt(4)]]))
-  const bTransferAction = Data.to(new Constr(0, [[BigInt(0)]]))
+  const transferAction = Data.to(new Constr(0, [[BigInt(0), BigInt(4)]]))
   const aWithdrawRedeemer = Data.to(BigInt(4))
   const bWithdrawRedeemer = Data.to(BigInt(0))
 
-  const aUtxos = await lucid.utxosAtWithUnit(user2TransferAddress, aUnit)
-  console.log(aUtxos)
-  const bUtxos = await lucid.utxosAtWithUnit(user1TransferAddress, bUnit)
-  console.log(bUtxos)
+  const utxos = await lucid.utxosAtWithUnit(user1TransferAddress, bUnit)
+  console.log(utxos)
 
-  const aUtxo = aUtxos[0]
-  const bUtxo = bUtxos[0]
+  // const aUtxo = aUtxos[0]
+  // const bUtxo = bUtxos[0]
 
   const tx = await lucid
     .newTx()
@@ -107,12 +104,10 @@ export async function multiAssetUtxos() {
       bUser1StateUtxo[0],
       bUser2StateUtxo[0]
     ])
-    .collectFrom([aUtxo], aTransferAction)
-    .collectFrom([bUtxo], bTransferAction)
+    .collectFrom([utxos[0]], transferAction)
     .attach.SpendingValidator(v.account.script)
-    .pay.ToAddress(user1TransferAddress, { [aUnit]: 50n, [bUnit]: 50n })
-    .pay.ToAddress(user2TransferAddress, { [aUnit]: 50n, [bUnit]: 50n })
-    .pay.ToAddress(user1TransferAddress, { [bUnit]: 700n })
+    .pay.ToAddress(user1TransferAddress, { [bUnit]: 50n })
+    .pay.ToAddress(user2TransferAddress, { [aUnit]: 50n })
     .attach.SpendingValidator(v.aTransfer.script)
     .attach.SpendingValidator(v.bTransfer.script)
     .withdraw(aTransferManager, 0n, aWithdrawRedeemer)
@@ -120,15 +115,14 @@ export async function multiAssetUtxos() {
     .attach.WithdrawalValidator(v.aTransfer.script)
     .attach.WithdrawalValidator(v.bTransfer.script)
     .addSignerKey(user1PKH)
-    .addSignerKey(user2PKH)
     .complete()
 
-  const user1Sign = await tx.partialSign.withWallet()
-  const user2Sign = await tx.partialSign.withPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
+  const user1Sign = await tx.sign.withWallet().complete()
+  // const user2Sign = await tx.partialSign.withPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
 
-  const assembledTx = await tx.assemble([user1Sign, user2Sign]).complete();
+  // const assembledTx = await tx.assemble([user1Sign, user2Sign]).complete();
 
-  const submitTx = await assembledTx.submit()
+  const submitTx = await user1Sign.submit()
 
   console.log(submitTx)
 
@@ -136,4 +130,4 @@ export async function multiAssetUtxos() {
   // return
 }
 
-multiAssetUtxos()
+send1Of()
