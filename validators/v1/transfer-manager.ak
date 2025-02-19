@@ -54,9 +54,8 @@ validator transferManager(
         "" -> True
         _ -> {
           let globalPolicy = bytearray.take(rDatum.globalStateUnit, 28)
-          trace globalPolicy
+
           let globalName = bytearray.drop(rDatum.globalStateUnit, 28)
-          trace globalName
 
           expect Some(globalRef) =
             list.find(

@@ -27,8 +27,7 @@ CToken: f5f579d93bfabb39d9ff012142b7ca9685b13c9d24baf75b4dbfc41
 then register the withdrawalScript(s) with `lucid:stakeScript`
 
 ```
-aTransferAddress:
-transferRewardAddress: stake_test17pfgn27xzgguneezvqq855pa4vfph2d308egpsh75d2pr8q0ypyvp
+aTransferAddress: stake_test17pfgn27xzgguneezvqq855pa4vfph2d308egpsh75d2pr8q0ypyvp
 9c48fa9b2653eedb16c4c046d3c4d65791787992c63fc74d93bf768ed700845f
 
 tx Hash: https://preprod.cardanoscan.io/transaction/1c5f1e62ab84393574eb8688c2343a5d855e0f12e1a613baafdd4f88599f7fad
@@ -38,8 +37,7 @@ stake_test17p8deyjfhjcq37mfrdk59gwujzsghgs8x7dyhwl36uer9zsm5vepc
 
 tx Hash: https://preprod.cardanoscan.io/transaction/dcf6c22ec42d3ee657542adb965f9acc1387c9efd88caa6bf93f0acea555924e
 
-cTransferAddress:
-transferRewardAddress: stake_test17pqg0zdkdv33hytjuelwxaquve3m85a4zemmg8q86txe88qjtsjj2
+cTransferAddress: stake_test17pqg0zdkdv33hytjuelwxaquve3m85a4zemmg8q86txe88qjtsjj2
 7643f9d754d5cc10774e8d968ab12c39be6d436492b18c4df91eea37f726712e
 
 tx Hash: https://preprod.cardanoscan.io/transaction/2f09d66260f65ae3844455b2455ac08fdf291f363b8e484b4b9fca87bfe13834
