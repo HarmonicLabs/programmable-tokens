@@ -2,9 +2,7 @@ use aiken/collection/list
 use cardano/address.{Address, Inline, Script, VerificationKey}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use draft/types.{
-  ClawBack, GlobalDatum, RegistryDatum, Spend, TransferAction, UserStateDatum,
-}
+use draft/types.{ClawBack, RegistryDatum, Spend, TransferAction, UserStateDatum}
 use draft/utils
 
 validator transferManager(registry: PolicyId, owner: ByteArray) {
@@ -59,9 +57,10 @@ validator transferManager(registry: PolicyId, owner: ByteArray) {
           )
 
         expect InlineDatum(datum) = globalRef.output.datum
-        expect gDatum: GlobalDatum = datum
+        expect gDatum: Int = datum
 
-        expect gDatum.freeze == False
+        // 0 represents False
+        expect gDatum == 0
 
         // let recCreds =
         //   list.map(
@@ -100,11 +99,13 @@ validator transferManager(registry: PolicyId, owner: ByteArray) {
 
               if list.has(assets.flatten(user.output.value), ownState) {
                 and {
-                  uDatum.blacklist == False,
-                  uDatum.freeze == False,
+                  // 0 represents False
+                  uDatum.blacklist == 0,
+                  uDatum.freeze == 0,
                 }
               } else {
-                uDatum.blacklist == False
+                // 0 represents False
+                uDatum.blacklist == 0
               }
             },
           ),

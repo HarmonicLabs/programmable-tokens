@@ -1,3 +1,4 @@
+use aiken/crypto.{ScriptHash}
 use cardano/address.{Address, Inline, Script, VerificationKey}
 use cardano/assets.{Value}
 use cardano/transaction.{Datum, Input, Output, OutputReference}
@@ -43,4 +44,9 @@ pub fn walletAddress(p: ByteArray) -> Address {
   let address =
     Address { payment_credential: VerificationKey(p), stake_credential: None }
   address
+}
+
+pub fn withdrawal(script: ScriptHash) {
+  let withdraw0 = [Pair(Script(script), 0)]
+  withdraw0
 }

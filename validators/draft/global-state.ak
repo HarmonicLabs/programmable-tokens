@@ -3,13 +3,11 @@ use aiken/collection/list
 use cardano/address.{Address, Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use draft/types.{
-  GBurn, GMint, GState, GUpdate, GlobalAction, GlobalDatum, GlobalMintAction,
-}
+use draft/types.{GBurn, GMint, GlobalMintAction}
 
 validator globalState(boot: OutputReference, owner: ByteArray) {
   // globalState refIn w scripts
-  // references withdrawal scripts for various asset functions
+  // references withdrawal scripts for various asset functions - not used here 
   mint(r: GlobalMintAction, p: PolicyId, tx: Transaction) {
     expect [Pair("", supplyQty)] =
       tx.mint
@@ -17,7 +15,7 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
         |> dict.to_pairs()
 
     when r is {
-      GMint { actions } -> {
+      GMint -> {
         expect Some(_bootIn) =
           list.find(tx.inputs, fn(in) { in.output_reference == boot })
 
@@ -36,13 +34,12 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
             },
           )
         expect InlineDatum(datum) = globalOut.datum
-        expect gDatum: GlobalDatum = datum
+        expect gDatum: Int = datum
 
-        and {
-          gDatum.freeze == False,
-          gDatum.actions == actions,
-        }
+        // 0 represents False
+        gDatum == 0
       }
+      // gDatum.actions == actions,
       GBurn -> and {
           supplyQty == -1,
           list.has(tx.extra_signatories, owner),
@@ -50,13 +47,8 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
     }
   }
 
-  spend(
-    dat: Option<GlobalDatum>,
-    r: GlobalAction,
-    oref: OutputReference,
-    tx: Transaction,
-  ) {
-    expect Some(d) = dat
+  spend(dat: Option<Int>, r: Int, oref: OutputReference, tx: Transaction) {
+    expect Some(_d) = dat
 
     expect Some(ownInput) =
       list.find(tx.inputs, fn(input) { input.output_reference == oref })
@@ -74,20 +66,27 @@ validator globalState(boot: OutputReference, owner: ByteArray) {
         },
       )
     expect InlineDatum(datum) = ownOut.datum
-    expect outDatum: GlobalDatum = datum
+    expect outDatum: Int = datum
 
     when r is {
-      GState { freeze } -> and {
-          outDatum.freeze == freeze,
-          outDatum.actions == d.actions,
+      1 -> and {
+          outDatum == 1,
+          // outDatum.actions == d.actions,
           list.has(tx.extra_signatories, owner),
         }
-      GUpdate { actions } -> and {
-          outDatum.actions == actions,
-          outDatum.freeze == d.freeze,
+      0 -> and {
+          outDatum == 0,
+          // outDatum.actions == d.actions,
           list.has(tx.extra_signatories, owner),
         }
+      _ -> fail
     }
+    // We dont need this as we are not using withdrawal scripts for actions
+    // GUpdate { actions } -> and {
+    //     outDatum.actions == actions,
+    //     outDatum.freeze == d.freeze,
+    //     list.has(tx.extra_signatories, owner),
+    //   }
   }
 
   else(_) {
