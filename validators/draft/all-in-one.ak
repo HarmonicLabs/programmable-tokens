@@ -2,7 +2,7 @@ use aiken/collection/dict
 use aiken/collection/list
 use aiken/collection/pairs
 use aiken/primitive/bytearray
-use cardano/address.{Address, Credential, Inline, Script, VerificationKey}
+use cardano/address.{Address, Credential, Inline, Script}
 use cardano/assets.{PolicyId}
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
 use draft/utils

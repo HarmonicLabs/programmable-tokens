@@ -6,9 +6,9 @@ use v1/token_registry
 use v1/types.{RInsert, RMint, RegistryDatum}
 
 test mintToEnd() {
-  let user = v.a
-  let rec1 = v.b
-  let owner = v.c
+  // let user = v.a
+  // let rec1 = v.b
+  // let owner = v.c
   let policy = s.tokenRegistry
 
   let oref = t.oref(v.id0, 1)
@@ -112,13 +112,12 @@ test mintToEnd() {
 }
 
 test mintHead() {
-  let user = v.a
-  let rec1 = v.b
-  let owner = v.c
+  // let user = v.a
+  // let rec1 = v.b
+  // let owner = v.c
   let policy = s.tokenRegistry
 
-  let oref = t.oref(v.id0, 1)
-
+  // let oref = t.oref(v.id0, 1)
   let registryMintAction =
     RMint(
       #"11111111111111111111111111111111111111111111111111111111",
@@ -158,9 +157,9 @@ test mintHead() {
 }
 
 test mintInsert() {
-  let user = v.a
-  let rec1 = v.b
-  let owner = v.c
+  // let user = v.a
+  // let rec1 = v.b
+  // let owner = v.c
   let policy = s.tokenRegistry
 
   let oref = t.oref(v.id0, 1)

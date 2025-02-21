@@ -3,7 +3,7 @@ use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use draft/variables as v
 use tools as t
 use v1/scripts as s
-use v1/types.{Admin, Blacklist, Burn, Freeze, KYC, UBurn, UMint, UserStateDatum}
+use v1/types.{Admin, Blacklist, Freeze, KYC, UMint, UserStateDatum}
 use v1/user_state
 
 test mintUserState() {

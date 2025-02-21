@@ -1,8 +1,9 @@
 use aiken/collection/list
-use cardano/address.{Inline, Script, VerificationKey}
-use cardano/assets.{PolicyId}
-use cardano/transaction.{InlineDatum, OutputReference, Transaction}
-use v1/types.{RegistryDatum, ThirdParty, Transfer, TransferAction}
+use aiken/collection/pairs
+use cardano/address.{Inline, VerificationKey}
+use cardano/assets
+use cardano/transaction.{OutputReference, Transaction}
+use v1/types.{ThirdParty, Transfer, TransferAction}
 use v1/utils
 
 // NOTE: There is a potential problem here where one ThirdParty script relies on another
@@ -22,20 +23,12 @@ validator account {
     expect Some(Inline(VerificationKey(owner))) =
       ownIn.output.address.stake_credential
 
-    expect [lovelace, ..tailPolicies] = assets.policies(ownIn.output.value)
+    expect [_lovelace, ..tailPolicies] = assets.policies(ownIn.output.value)
 
-    // trace tailPolicies
     when r is {
       // registry nodes need to be in lexOrder to map with policyList
-      Transfer { registryNodes } -> {
-        let nodes =
-          list.map(
-            registryNodes,
-            fn(index) { list.at(tx.reference_inputs, index) },
-          )
-
-        and {
-          utils.registryPolicies(
+      Transfer { registryNodes } -> and {
+          utils.registryStd(
             tx.withdrawals,
             tx.reference_inputs,
             registryNodes,
@@ -44,9 +37,8 @@ validator account {
           // account owner signs Tx
           list.has(tx.extra_signatories, owner)?,
         }
-      }
       ThirdParty { registryNodes } -> and {
-          utils.registryPolicies(
+          utils.registryStd(
             tx.withdrawals,
             tx.reference_inputs,
             registryNodes,

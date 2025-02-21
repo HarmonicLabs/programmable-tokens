@@ -1,6 +1,6 @@
 use aiken/collection/list
 use cardano/address.{Inline, Script, VerificationKey}
-use cardano/assets.{PolicyId}
+use cardano/assets
 use cardano/transaction.{InlineDatum, OutputReference, Transaction}
 use v1/types.{RegistryDatum, ThirdParty, Transfer, TransferAction}
 
@@ -18,7 +18,7 @@ validator account {
     expect Some(ownIn) =
       list.find(tx.inputs, fn(in) { in.output_reference == oref })
 
-    let ownHash = ownIn.output.address.payment_credential
+    // let ownHash = ownIn.output.address.payment_credential
     expect Some(Inline(VerificationKey(owner))) =
       ownIn.output.address.stake_credential
 

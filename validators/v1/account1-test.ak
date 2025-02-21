@@ -1,20 +1,20 @@
 use aiken/primitive/bytearray
-use cardano/address.{Script}
+use cardano/address
 use cardano/assets
 use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use draft/variables as v
 use tools as t
 use v1/account1
 use v1/scripts as s
-use v1/transfer_manager
-use v1/types.{RegistryDatum, ThirdParty, Transfer, UserStateDatum}
+// use v1/transfer_manager
+use v1/types.{RegistryDatum, Transfer, UserStateDatum}
 
 test sendToOne_Inclusive() {
   let user = v.a
   let rec1 = v.b
-  let owner = v.c
-  let policy = v.d
 
+  // let owner = v.c
+  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =
@@ -128,9 +128,9 @@ test sendToOne_Inclusive() {
 test sendToOne() {
   let user = v.a
   let rec1 = v.b
-  let owner = v.c
-  let policy = v.d
 
+  // let owner = v.c
+  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =
@@ -243,9 +243,9 @@ test sendToOne() {
 test sendToOneFail() fail {
   let user = v.a
   let rec1 = v.b
-  let owner = v.c
-  let policy = v.d
 
+  // let owner = v.c
+  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =

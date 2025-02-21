@@ -4,7 +4,7 @@ use draft/variables as v
 use tools as t
 use v1/global_state
 use v1/scripts as s
-use v1/types.{GMint, GlobalMintAction, RInsert}
+use v1/types.{GMint}
 
 test globalMint() {
   let owner = v.b

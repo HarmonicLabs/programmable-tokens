@@ -1,20 +1,20 @@
 use aiken/primitive/bytearray
-use cardano/address
+use cardano/address.{Script}
 use cardano/assets
 use cardano/transaction.{InlineDatum, NoDatum, Transaction, placeholder}
 use draft/variables as v
+use optimisation/account2
 use tools as t
-use v1/account_wallet
 use v1/scripts as s
-// use v1/transfer_manager
-use v1/types.{RegistryDatum, Transfer, UserStateDatum}
+use v1/transfer_manager
+use v1/types.{RegistryDatum, ThirdParty, Transfer, UserStateDatum}
 
 test sendToOne_Inclusive() {
   let user = v.a
   let rec1 = v.b
+  let owner = v.c
+  let policy = v.d
 
-  // let owner = v.c
-  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =
@@ -111,9 +111,9 @@ test sendToOne_Inclusive() {
       withdrawals: withdraw0,
     }
 
-  account_wallet.account.spend(None, transferAction, oref, tx)
+  account2.account.spend(None, transferAction, oref, tx)
   // and {
-  //   account_wallet.account.spend(None, transferAction, oref, tx)?,
+  //   account1.account.spend(None, transferAction, oref, tx)?,
   //   transfer_manager.transferManager.withdraw(
   //     s.tokenRegistry,
   //     s.account,
@@ -128,9 +128,9 @@ test sendToOne_Inclusive() {
 test sendToOne() {
   let user = v.a
   let rec1 = v.b
+  let owner = v.c
+  let policy = v.d
 
-  // let owner = v.c
-  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =
@@ -228,7 +228,7 @@ test sendToOne() {
     }
 
   // and {
-  account_wallet.account.spend(None, transferAction, oref, tx)?
+  account2.account.spend(None, transferAction, oref, tx)?
   //   transfer_manager.transferManager.withdraw(
   //     s.tokenRegistry,
   //     s.account,
@@ -243,9 +243,9 @@ test sendToOne() {
 test sendToOneFail() fail {
   let user = v.a
   let rec1 = v.b
+  let owner = v.c
+  let policy = v.d
 
-  // let owner = v.c
-  // let policy = v.d
   let oref = t.oref(v.id0, 1)
 
   let registryDatum =
@@ -343,7 +343,7 @@ test sendToOneFail() fail {
     }
 
   // and {
-  account_wallet.account.spend(None, transferAction, oref, tx)?
+  account2.account.spend(None, transferAction, oref, tx)?
   // }
   // transfer_manager.transferManager.withdraw(
   //   s.tokenRegistry,
