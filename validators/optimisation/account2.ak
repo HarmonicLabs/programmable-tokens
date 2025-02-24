@@ -27,17 +27,8 @@ validator account {
 
     let stakeHashes = pairs.keys(tx.withdrawals)
 
-    // trace tailPolicies
     when r is {
-      // registry nodes need to be in lexOrder to map with policyList
-      Transfer { registryNodes } ->
-        // let nodes =
-        //   list.map(
-        //     registryNodes,
-        //     fn(index) { list.at(tx.reference_inputs, index) },
-        //   )
-
-        and {
+      Transfer { registryNodes } -> and {
           utils.registry2(
             stakeHashes,
             tx.reference_inputs,
@@ -47,16 +38,13 @@ validator account {
           // account owner signs Tx
           list.has(tx.extra_signatories, owner)?,
         }
-      ThirdParty { registryNodes } -> and {
-          utils.registry2(
-            stakeHashes,
-            tx.reference_inputs,
-            registryNodes,
-            tailPolicies,
-          ),
-          // account owner signs Tx
-          list.has(tx.extra_signatories, owner)?,
-        }
+      ThirdParty { registryNodes } ->
+        utils.third2(
+          stakeHashes,
+          tx.reference_inputs,
+          registryNodes,
+          tailPolicies,
+        )
     }
   }
 

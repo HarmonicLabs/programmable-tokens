@@ -99,3 +99,98 @@ pub fn registry2(
     }
   }
 }
+
+pub fn thirdPolicies(
+  withdrawals: Pairs<Credential, Lovelace>,
+  reference: List<Input>,
+  registryNodes: List<Int>,
+  tailPolicies: List<PolicyId>,
+) -> Bool {
+  when registryNodes is {
+    [] -> {
+      expect [] = tailPolicies
+      True
+    }
+    [rHead, ..rTail] -> {
+      expect Some(input) = list.at(reference, rHead)
+      expect [pHead, ..pTail] = tailPolicies
+      // Get our registry Datum
+      expect InlineDatum(datum) = input.output.datum
+      expect rDatum: RegistryDatum = datum
+      // policy matches registry
+      expect pHead == rDatum.tokenPolicy
+      // transferManager withdraws
+      expect Some(data) =
+        list.find(
+          withdrawals,
+          fn(index) {
+            builtin.head_list(builtin.unconstr_fields(builtin.fst_pair(index))) == builtin.b_data(
+              rDatum.thirdPartyAction,
+            )
+          },
+        )
+
+      thirdPolicies(withdrawals, reference, rTail, pTail)
+    }
+  }
+}
+
+pub fn thirdStd(
+  withdrawals: Pairs<Credential, Lovelace>,
+  reference: List<Input>,
+  registryNodes: List<Int>,
+  tailPolicies: List<PolicyId>,
+) -> Bool {
+  when registryNodes is {
+    [] -> {
+      expect [] = tailPolicies
+      True
+    }
+    [rHead, ..rTail] -> {
+      expect Some(input) = list.at(reference, rHead)
+      expect [pHead, ..pTail] = tailPolicies
+      // Get our registry Datum
+      expect InlineDatum(datum) = input.output.datum
+      expect rDatum: RegistryDatum = datum
+      // policy matches registry
+      expect pHead == rDatum.tokenPolicy
+      // transferManager withdraws
+      expect list.has(withdrawals, Pair(Script(rDatum.thirdPartyAction), 0))
+      thirdStd(withdrawals, reference, rTail, pTail)
+    }
+  }
+}
+
+pub fn third2(
+  withdrawals: List<Credential>,
+  reference: List<Input>,
+  registryNodes: List<Int>,
+  tailPolicies: List<PolicyId>,
+) -> Bool {
+  when registryNodes is {
+    [] -> {
+      expect [] = tailPolicies
+      True
+    }
+    [rHead, ..rTail] -> {
+      expect Some(input) = list.at(reference, rHead)
+      expect [pHead, ..pTail] = tailPolicies
+      // Get our registry Datum
+      expect InlineDatum(datum) = input.output.datum
+      expect rDatum: RegistryDatum = datum
+      // policy matches registry
+      expect pHead == rDatum.tokenPolicy
+      // transferManager withdraws
+      expect Some(data) =
+        list.find(
+          withdrawals,
+          fn(index) {
+            builtin.head_list(builtin.unconstr_fields(index)) == builtin.b_data(
+              rDatum.thirdPartyAction,
+            )
+          },
+        )
+      third2(withdrawals, reference, rTail, pTail)
+    }
+  }
+}

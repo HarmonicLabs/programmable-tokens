@@ -37,16 +37,13 @@ validator account {
           // account owner signs Tx
           list.has(tx.extra_signatories, owner)?,
         }
-      ThirdParty { registryNodes } -> and {
-          utils.registryStd(
-            tx.withdrawals,
-            tx.reference_inputs,
-            registryNodes,
-            tailPolicies,
-          ),
-          // account owner signs Tx
-          list.has(tx.extra_signatories, owner)?,
-        }
+      ThirdParty { registryNodes } ->
+        utils.thirdStd(
+          tx.withdrawals,
+          tx.reference_inputs,
+          registryNodes,
+          tailPolicies,
+        )
     }
   }
 

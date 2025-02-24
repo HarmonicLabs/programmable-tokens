@@ -20,7 +20,7 @@ export async function registerStake() {
   const tx = await lucid
     .newTx()
     // transferAddr | thirdPartyAddr
-    .registerStake(aTransferAddr)
+    .registerStake(cTransferAddr)
     //.registerStake(bTransferAddr)
     //    .registerStake(cTransferAddr)
     .complete()

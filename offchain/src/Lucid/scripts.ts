@@ -70,7 +70,7 @@ export async function makeValidators() {
   // const transferHash = validatorToScriptHash(transferScript)
 
   async function readAccountValidator(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[3];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[1];
     return {
       type: "PlutusV3",
       script: validator.compiledCode,
@@ -78,7 +78,7 @@ export async function makeValidators() {
   }
 
   async function readGlobalValidatorA(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[2];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [orefA, ownerPKH]),
@@ -86,7 +86,7 @@ export async function makeValidators() {
   }
 
   async function readGlobalValidatorB(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[2];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [orefB, user1PKH]),
@@ -94,7 +94,7 @@ export async function makeValidators() {
   }
 
   async function readGlobalValidatorC(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[2];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [orefC, user2PKH]),
@@ -102,7 +102,7 @@ export async function makeValidators() {
   }
 
   async function readTokenRegistry(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[8];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[3];
     return {
       type: "PlutusV3",
       script: validator.compiledCode
@@ -110,7 +110,7 @@ export async function makeValidators() {
   }
 
   async function readTransferManagerA(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[11];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[4];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [registryCS, accountHash, aTokenCS]),
@@ -118,7 +118,7 @@ export async function makeValidators() {
   }
 
   async function readTransferManagerB(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[11];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[4];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [registryCS, accountHash, bTokenCS]),
@@ -126,7 +126,7 @@ export async function makeValidators() {
   }
 
   async function readTransferManagerC(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[11];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[4];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [registryCS, accountHash, cTokenCS]),
@@ -134,7 +134,7 @@ export async function makeValidators() {
   }
 
   async function readUserStateManagerA(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[13];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [ownerPKH, aTokenCS]),
@@ -142,7 +142,7 @@ export async function makeValidators() {
   }
 
   async function readUserStateManagerB(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[13];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [user1PKH, bTokenCS]),
@@ -150,7 +150,7 @@ export async function makeValidators() {
   }
 
   async function readUserStateManagerC(): Promise<Script> {
-    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[13];
+    const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[5];
     return {
       type: "PlutusV3",
       script: applyParamsToScript(validator.compiledCode, [user2PKH, cTokenCS]),
@@ -161,7 +161,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(6)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(9)]),
     };
   }
 
@@ -169,7 +169,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(7)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(10)]),
     };
   }
 
@@ -177,7 +177,7 @@ export async function makeValidators() {
     const validator = JSON.parse(await readFile('../plutus.json', { encoding: "utf-8" })).validators[0];
     return {
       type: "PlutusV3",
-      script: applyParamsToScript(validator.compiledCode, [BigInt(8)]),
+      script: applyParamsToScript(validator.compiledCode, [BigInt(11)]),
     };
   }
 

@@ -19,26 +19,27 @@ You will need to first build the scripts `lucid:validators`,
 
 ```
 // A is the HEAD of the registry here, you may need to adjust the registry Tx's
-AToken: 41a9566ef6672f006ef455bbd2c0599e74ba36351b3fbe92cb223f4b
-BToken: 228659c1380d7a0f54d62e6c156f204afbb1eaefe18259b550c70d44
-CToken: f5f579d93bfabb39d9ff012142b7ca9685b13c9d24baf75b4dbfc41
+AToken: 1fca0ff51b759e7154e074f6b780cf1e99fec100a60753f927978eba
+BToken: ad19a7fe4413136c9ce3c2fdcbdb5c5409729e18dd2ac3768a52570f
+CToken: 2479fed221783578e41a0d8bcf3ee1b4c39783af69d080bc56f7eb6d
 ```
 
 then register the withdrawalScript(s) with `lucid:stakeScript`
 
 ```
-aTransferAddress: stake_test17pfgn27xzgguneezvqq855pa4vfph2d308egpsh75d2pr8q0ypyvp
-9c48fa9b2653eedb16c4c046d3c4d65791787992c63fc74d93bf768ed700845f
+aTransferAddress: stake_test17qckaxwzddzjd0ah84fgt0r8ma28hgw3k0902kwuv7qu04sjfauzf
+1d8f166cc78ac2da718010af9984fad2bed13bbb7b434d5aaf4dc1460903e804
 
 tx Hash: https://preprod.cardanoscan.io/transaction/1c5f1e62ab84393574eb8688c2343a5d855e0f12e1a613baafdd4f88599f7fad
 
 bTransferAddress:
-stake_test17p8deyjfhjcq37mfrdk59gwujzsghgs8x7dyhwl36uer9zsm5vepc
+transferRewardAddress: stake_test17qckaxwzddzjd0ah84fgt0r8ma28hgw3k0902kwuv7qu04sjfauzf
+e5e12718ccb01a3bd3c9f5c118288fb09651c5a1ddb434a8c248cdd5f2926d62
 
 tx Hash: https://preprod.cardanoscan.io/transaction/dcf6c22ec42d3ee657542adb965f9acc1387c9efd88caa6bf93f0acea555924e
 
-cTransferAddress: stake_test17pqg0zdkdv33hytjuelwxaquve3m85a4zemmg8q86txe88qjtsjj2
-7643f9d754d5cc10774e8d968ab12c39be6d436492b18c4df91eea37f726712e
+cTransferAddress: stake_test17qckaxwzddzjd0ah84fgt0r8ma28hgw3k0902kwuv7qu04sjfauzf
+0f52f37f259e54d5c871c1cf0d19e7bd52a94d5f3cbefc4b28101f3b96f3a409
 
 tx Hash: https://preprod.cardanoscan.io/transaction/2f09d66260f65ae3844455b2455ac08fdf291f363b8e484b4b9fca87bfe13834
 ```
@@ -51,13 +52,13 @@ So we will need to register 3 TransferManagerScripts
 
 ```
 A Global:
-tx Hash: https://preprod.cardanoscan.io/transaction/e29259c5ff9ae449556f06daf17476aa4ef500fcfeb1c72f8f4660a821bcf95a
+tx Hash: https://preprod.cardanoscan.io/transaction/7946fb810402d59123e2bb03a6f856abd28e59c796f7efa8093fc5f9a423af4b
 
 B Global:
-tx Hash: https://preprod.cardanoscan.io/transaction/8169cd89461d0deae1fe6a1a964ee89a46eb0442f68c708bf846d28e5a9d1a40
+tx Hash: https://preprod.cardanoscan.io/transaction/aa85d7bf367d7478736f6dd5d2afc80ca58874dc9f6a39db493c8695a310df0a
 
 C Global:
-tx Hash: https://preprod.cardanoscan.io/transaction/1ea93f733820c0cedc24b087851c0ded452fa1627f2d512ec795fc64a6566399
+tx Hash: https://preprod.cardanoscan.io/transaction/8bfad82633cd528b0ad9033bd0bd42862d36d7b45dd3e8553fb90fc198892854
 ```
 This had to be done first because I compiled the parameterised validators and the utxo
 had to be available (and consumed) in the minting transaction.
@@ -65,53 +66,53 @@ had to be available (and consumed) in the minting transaction.
 ### Mint Registry
 
 ```
+AToken Registry
+tx Hash: https://preprod.cardanoscan.io/transaction/136082db95fd256516ac72e010f9f42875bcbc9f6d2f6cd97f6dbd3e43aad428
+
 CToken Registry
-tx Hash: https://preprod.cardanoscan.io/transaction/c45ffe6fc451d302c1dd15cebf951e70828247537a697e74ed847e7edac7e214
+tx Hash: https://preprod.cardanoscan.io/transaction/b429a9af0aae2f40e6485770fc97cf88d58b10e798cc787907735dc3aa4e8862
 
 BToken Registry
-tx Hash: https://preprod.cardanoscan.io/transaction/ea0f9164b9f0c081bc3f3921e87191707c93e89370f29cf123c6af650a4ce946
-
-AToken Registry
-tx Hash: https://preprod.cardanoscan.io/transaction/044de3bf0cf930f2e180dcf252926e3f2adb19a545f1ce496458529863fa28ec
+tx Hash: https://preprod.cardanoscan.io/transaction/cc7b2c15691fcc9bc2f26f28fcb63c002d296b7669f687826ec210994c00a467
 ```
 
 ### Mint User State Tokens
 
 ```
 Owner States for each token
-Tx Hash: https://preprod.cardanoscan.io/transaction/6a83fb96220688916b3484dabd9423d7079418610d4bb87465dd6c83f006bc17
+Tx Hash: https://preprod.cardanoscan.io/transaction/3b159cf7054e118614da2fe5247cce9c6cfff8d05bd74936ea12c2c202216b38
 
 User1 
-Tx Hash: https://preprod.cardanoscan.io/transaction/d7ce77f1c3efac8ad2f47dbd33d165cc99f89da8821992b15bcdf6bb5fb7206e
+Tx Hash: https://preprod.cardanoscan.io/transaction/fbcab65d22ef661c5abd77022bc4d2efaa7139fb78f756c44ade9daec6ca6740
 
 User2 
-Tx Hash: https://preprod.cardanoscan.io/transaction/9562a71f4d06a0f93b8c78fa70cea72c9da2a4de1a89fa3aaabd2a86f3a856a2
+Tx Hash: https://preprod.cardanoscan.io/transaction/a1d455b38c7283d2bb5ca28f6a58f811224cdaccb2ddd13c7eadc7e9f1203f56
 ```
 
 ### KYC Users
 
 ```
 KYC All aToken UserStates 
-Tx Hash: https://preprod.cardanoscan.io/transaction/8066abb45c7cb0c38050aa5491f4c60e17b6be800c38824707052660a5e4f3b4
+Tx Hash: https://preprod.cardanoscan.io/transaction/3766332a97f91d386e4272e6dedbe629b4f9653734ffca7c7121323faf8e81be
 
 KYC All bToken UserStates
-Tx Hash: https://preprod.cardanoscan.io/transaction/cdce32f3d26a99ff407c358b60ebec28131b04bbed11a2c3b337021598f932dc
+Tx Hash: https://preprod.cardanoscan.io/transaction/086e2421773c8b0fe9d08db5a1f43dc1528c52cd923197bc94251d9921e3d510
 
 KYC All cToken UserStates
-Tx Hash: https://preprod.cardanoscan.io/transaction/b3ad083ed4a5a495d86c4fd15afc771452d800cd71faee9466848265897b7161
+Tx Hash: https://preprod.cardanoscan.io/transaction/780073f2b7f2f7f3d835de44c908d9c643ffb7fbe1244a2499e1c56f0612a24b
 ```
 
 ### Mint Programmable Tokens
 
 ```
 aTokens
-Tx Hash: https://preprod.cardanoscan.io/transaction/721c3cdba4d232527b553faf5c8cbe0b3405126f2db7a4e10a34785fb414da12
+Tx Hash: https://preprod.cardanoscan.io/transaction/20718bc00840132ec7cf481175615430bce666476e1ae36b9fa4b51f3ca19317
 
 bTokens
-Tx Hash: https://preprod.cardanoscan.io/transaction/42740e7767614221886d123d9de69c18dce1892ded6f85e86f12a771ac30fdb3
+Tx Hash: https://preprod.cardanoscan.io/transaction/345126c589d12921b765a9e1902a9d0791abab891faf91181f54f8a3bbb299ad
 
 cTokens
-Tx Hash: https://preprod.cardanoscan.io/transaction/cf1bd8867f90144672e719c0b2cbf4e2d13322d95122792afa89d634e4aeeb40
+Tx Hash: https://preprod.cardanoscan.io/transaction/dde3c3a00baa7cb345f3ef49f3a70a6537e6192b6925e6ae72723f87ff8f6270
 ```
 
 These are dummy tokens registered with the validator.

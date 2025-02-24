@@ -5,18 +5,18 @@ import { readFile } from 'fs/promises'
 export async function mintInitRegistry() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const registry = validators.scripts.registry
-  const bToken = validators.scripts.bToken
-  const transfer = validators.scripts.bTransfer
-  const user = validators.scripts.bUser
-  const global = validators.scripts.bGlobal
-  const bTokenHash = validatorToScriptHash(bToken.script)
+  const aToken = validators.scripts.aToken
+  const transfer = validators.scripts.aTransfer
+  const user = validators.scripts.aUser
+  const global = validators.scripts.aGlobal
+  const aTokenHash = validatorToScriptHash(aToken.script)
   const registryHash = validatorToScriptHash(registry.script)
   const globalHash = validatorToScriptHash(global.script)
   const userHash = validatorToScriptHash(user.script)
   const transferHash = validatorToScriptHash(transfer.script)
   const registryAddress = validatorToAddress("Preprod", registry.script)
 
-  const thirdPartyHash = bTokenHash
+  const thirdPartyHash = aTokenHash
 
   const lucid = await blockfrost()
 
@@ -28,15 +28,15 @@ export async function mintInitRegistry() {
   const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
   const utxo = utxos[0]
 
-  const globalUnit = toUnit(globalHash, bTokenHash)
+  const globalUnit = toUnit(globalHash, aTokenHash)
 
   const registryMintAction =
-    Data.to(new Constr(0, [bTokenHash, transferHash, userHash, globalUnit, thirdPartyHash]))
+    Data.to(new Constr(0, [aTokenHash, transferHash, userHash, globalUnit, thirdPartyHash]))
 
   const registryDatum =
-    Data.to(new Constr(0, [bTokenHash, fromText(''), transferHash, userHash, globalUnit, thirdPartyHash]))
+    Data.to(new Constr(0, [aTokenHash, fromText(''), transferHash, userHash, globalUnit, thirdPartyHash]))
 
-  const unit = toUnit(registryHash, bTokenHash)
+  const unit = toUnit(registryHash, aTokenHash)
 
   const tx = await lucid
     .newTx()
