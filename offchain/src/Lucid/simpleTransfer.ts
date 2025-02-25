@@ -31,11 +31,6 @@ export async function simpleTransfer() {
       keyHashToCredential(ownerPKH)
     )
 
-  const utxos = await lucid.utxosAt(ownerTransferAddress)
-  console.log(utxos)
-  const utxo = utxos[0]
-  console.log(utxo)
-
   const user1PKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
     .paymentCredential!.hash
 
@@ -65,10 +60,11 @@ export async function simpleTransfer() {
   console.log(`User1State UTxO: ${aUser1StateUtxo[0].txHash}`)
   //  console.log(aUser1StateUtxo)
 
-  const aTransferAction = Data.to(new Constr(0, [[BigInt(10)]]))
-  const aWithdrawRedeemer = Data.to(BigInt(10))
+  const aTransferAction = Data.to(new Constr(0, [[BigInt(3)]]))
+  const aWithdrawRedeemer = Data.to(BigInt(3))
 
   const aUtxos = await lucid.utxosAtWithUnit(ownerTransferAddress, aUnit)
+  console.log(aUtxos)
   const aUtxo = aUtxos[0]
 
   const tx = await lucid
@@ -94,4 +90,7 @@ export async function simpleTransfer() {
   console.log(submitTx)
 
   return submitTx
+  // return
 }
+
+simpleTransfer()

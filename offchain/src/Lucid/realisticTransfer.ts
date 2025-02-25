@@ -65,11 +65,10 @@ export async function allSendToAll() {
   console.log(`User1State UTxO: ${aUser1StateUtxo[0].txHash}`)
   //  console.log(aUser1StateUtxo)
 
-  const aTransferAction = Data.to(new Constr(0, [[BigInt(10)]]))
-  const aWithdrawRedeemer = Data.to(BigInt(10))
+  const aTransferAction = Data.to(new Constr(0, [[BigInt(3)]]))
+  const aWithdrawRedeemer = Data.to(BigInt(3))
 
   const aUtxos = await lucid.utxosAtWithUnit(ownerTransferAddress, aUnit)
-
   const aUtxo = aUtxos[0]
 
   const tx = await lucid
@@ -82,20 +81,16 @@ export async function allSendToAll() {
     ])
     .collectFrom([aUtxo], aTransferAction)
     .attach.SpendingValidator(v.account.script)
-    .pay.ToAddress(user1TransferAddress, { [aUnit]: 100n })
-    .pay.ToAddress(ownerTransferAddress, { [aUnit]: 800n })
+    .pay.ToAddress(user1TransferAddress, { [aUnit]: 50n })
+    .pay.ToAddress(ownerTransferAddress, { [aUnit]: 50n })
     .withdraw(aTransferManager, 0n, aWithdrawRedeemer)
     .attach.WithdrawalValidator(v.aTransfer.script)
     .addSignerKey(ownerPKH)
     .complete()
 
-  const ownerSign = await tx.partialSign.withWallet()
-  const user1Sign = await tx.partialSign.withPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
-  const user2Sign = await tx.partialSign.withPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
+  const ownerSign = await tx.sign.withWallet().complete()
 
-  const assembledTx = await tx.assemble([ownerSign, user1Sign, user2Sign]).complete();
-
-  const submitTx = await assembledTx.submit()
+  const submitTx = await ownerSign.submit()
 
   console.log(submitTx)
 

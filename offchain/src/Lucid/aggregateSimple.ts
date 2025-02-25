@@ -2,7 +2,7 @@ import { Constr, credentialToAddress, Data, fromHex, fromText, getAddressDetails
 import { blockfrost } from "./blockfrost.js"
 import { readFile } from 'fs/promises'
 
-export async function allSendToAll() {
+export async function realisticTransfer() {
   const validators = JSON.parse(await readFile('../validators.json', { encoding: "utf-8" }))
   const v = validators.scripts
   const lucid = await blockfrost()
@@ -30,11 +30,6 @@ export async function allSendToAll() {
       scriptHashToCredential(accountHash),
       keyHashToCredential(ownerPKH)
     )
-
-  const utxos = await lucid.utxosAt(ownerTransferAddress)
-  console.log(utxos)
-  const utxo = utxos[0]
-  console.log(utxo)
 
   const user1PKH = getAddressDetails('addr_test1vzrpepre3t5k05w6plk4z9tc0c4yjlsqqfk8pn7uwdhzl5ge8g32s')
     .paymentCredential!.hash
@@ -65,11 +60,13 @@ export async function allSendToAll() {
   console.log(`User1State UTxO: ${aUser1StateUtxo[0].txHash}`)
   //  console.log(aUser1StateUtxo)
 
-  const aTransferAction = Data.to(new Constr(0, [[BigInt(10)]]))
-  const aWithdrawRedeemer = Data.to(BigInt(10))
+  const aTransferAction = Data.to(new Constr(0, [[BigInt(3)]]))
+  const aWithdrawRedeemer = Data.to(BigInt(3))
 
   const aUtxos = await lucid.utxosAtWithUnit(ownerTransferAddress, aUnit)
-  const aUtxIn = [aUtxos[0], aUtxos[1]]
+  const aUtxosIn = [aUtxos[0], aUtxos[1]]
+
+  // const utxos = await lucid.utxosAt('addr_test1vpygkhec6ghfqvac76uy972rqjwplccv3rvna9qfy43tlqs57l3up')
 
   const tx = await lucid
     .newTx()
@@ -79,7 +76,8 @@ export async function allSendToAll() {
       aOwnerStateUtxo[0],
       aUser1StateUtxo[0],
     ])
-    .collectFrom(aUtxIn, aTransferAction)
+    // .collectFrom(utxos)
+    .collectFrom(aUtxosIn, aTransferAction)
     .attach.SpendingValidator(v.account.script)
     .pay.ToAddress(user1TransferAddress, { [aUnit]: 150n })
     .pay.ToAddress(ownerTransferAddress, { [aUnit]: 50n })
@@ -88,17 +86,15 @@ export async function allSendToAll() {
     .addSignerKey(ownerPKH)
     .complete()
 
-  const ownerSign = await tx.partialSign.withWallet()
-  const user1Sign = await tx.partialSign.withPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
-  const user2Sign = await tx.partialSign.withPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
+  const ownerSign = await tx.sign.withWallet().complete()
 
-  const assembledTx = await tx.assemble([ownerSign, user1Sign, user2Sign]).complete();
-
-  const submitTx = await assembledTx.submit()
+  const submitTx = await ownerSign.submit()
 
   console.log(submitTx)
 
   return submitTx
+
+  // return
 }
 
-allSendToAll()
+realisticTransfer()

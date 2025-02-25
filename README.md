@@ -120,6 +120,51 @@ These are dummy tokens registered with the validator.
 They are sent to the owner's account by default and can then be sent to the users as part
 of the tests.
 
+### Simple Transfer
+
+```
+Simple Transfer
+TxHash: https://preprod.cardanoscan.io/transaction/60e5303ad0556f540d0c55701b62030a81344a76de98a7abb9e0ef87bca1d7a8
+```
+
+Tx mem   5653004    (45.22%)
+Tx steps 1838937675 (18.39%)
+
+### Realistic Transfer
+
+```
+Realistic Transfer
+TxHash: https://preprod.cardanoscan.io/transaction/16319505727c617d5c2b88f4fb80071f4828b55986a3067c2f301b5f70fb9369
+```
+
+Tx mem   5653004    (45.22%)
+Tx steps 1838937675 (18.39%)
+
+### Aggregate Transfer
+
+```
+Realistic Transfer
+TxHash: https://preprod.cardanoscan.io/transaction/a75eb62de3274647df4212e366cf40921238c927583b8aaebb922233c81f2ffd
+```
+
+Tx mem   5653004    (45.22%)
+Tx steps 1838937675 (18.39%)
+
+### Batcher Pool Example
+
+```
+Batcher Pool Example
+TxHash: https://preprod.cardanoscan.io/transaction/69cd1a0effdb8aed291b201d186b6f6d3d1ee6092339dd0fb74e64fe127a496a
+```
+
+Tx mem   5653004    (45.22%)
+Tx steps 1838937675 (18.39%)
+
+69cd1a0effdb8aed291b201d186b6f6d3d1ee6092339dd0fb74e64fe127a496a
+---
+
+## Older Tests
+
 ### All Send To All
 
 The first real token transfer we do is the biggest.
@@ -183,6 +228,8 @@ In this transaction we send 1 of 2 programmable tokens at a UTxO to User2, retur
 
 Total Mem: 1687169     (13.5%)
 Total Steps: 560767003 (5.61%)
+
+
 
 ---
 

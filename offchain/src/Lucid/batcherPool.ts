@@ -88,15 +88,17 @@ export async function allSendToAll() {
   console.log(`User1State UTxO: ${bUser1StateUtxo[0].txHash}`)
   //  console.log(bUser1StateUtxo)
 
-  const aTransferAction = Data.to(new Constr(0, [[BigInt(10)]]))
-  const bTransferAction = Data.to(new Constr(0, [[BigInt(0)]]))
+  const aTransferAction = Data.to(new Constr(0, [[BigInt(6)]]))
+  const bTransferAction = Data.to(new Constr(0, [[BigInt(7)]]))
 
-  const aWithdrawRedeemer = Data.to(BigInt(10))
-  const bWithdrawRedeemer = Data.to(BigInt(0))
+  const aWithdrawRedeemer = Data.to(BigInt(6))
+  const bWithdrawRedeemer = Data.to(BigInt(7))
 
   const aUtxos = await lucid.utxosAtWithUnit(ownerTransferAddress, aUnit)
+  console.log(aUtxos)
   const bUtxos = await lucid.utxosAtWithUnit(user1TransferAddress, bUnit)
-  const ownerUtxo = aUtxos[0]
+  console.log(bUtxos)
+  const ownerUtxo = aUtxos[2]
   const user1Utxo = bUtxos[0]
 
   const tx = await lucid
@@ -114,8 +116,8 @@ export async function allSendToAll() {
     .collectFrom([ownerUtxo], aTransferAction)
     .collectFrom([user1Utxo], bTransferAction)
     .attach.SpendingValidator(v.account.script)
-    .pay.ToAddress(user1TransferAddress, { [aUnit]: 100n, [bUnit]: 100n })
-    .pay.ToAddress(ownerTransferAddress, { [aUnit]: 800n })
+    .pay.ToAddress(ownerTransferAddress, { [aUnit]: 500n, [bUnit]: 100n })
+    .pay.ToAddress(user1TransferAddress, { [aUnit]: 100n })
     .withdraw(aTransferManager, 0n, aWithdrawRedeemer)
     .withdraw(bTransferManager, 0n, bWithdrawRedeemer)
     .attach.WithdrawalValidator(v.aTransfer.script)
@@ -126,15 +128,15 @@ export async function allSendToAll() {
 
   const ownerSign = await tx.partialSign.withWallet()
   const user1Sign = await tx.partialSign.withPrivateKey('ed25519_sk1nehhqvw0563xkrdv5vasmkt2jw0gaxnm72mr6qadhp7htq8czl3swrf9mu')
-  const user2Sign = await tx.partialSign.withPrivateKey('ed25519_sk1m6s42600gmng6r5lhw79rthd579k68tw7rgra9uyk2qhnudrfrjqge87pr')
 
-  const assembledTx = await tx.assemble([ownerSign, user1Sign, user2Sign]).complete();
+  const assembledTx = await tx.assemble([ownerSign, user1Sign]).complete();
 
   const submitTx = await assembledTx.submit()
 
   console.log(submitTx)
 
   return submitTx
+  // return
 }
 
 allSendToAll()

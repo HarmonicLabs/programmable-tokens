@@ -36,7 +36,11 @@
     "lucid:splitUtxos": "npm run build && node dist/Lucid/splitUtxos.js",
     "lucid:splitAssetUtxos": "npm run build && node dist/Lucid/splitAssetUtxos",
     "lucid:multiInUtxos": "npm run build && node dist/Lucid/multiInUtxo",
-    "lucid:send1Of": "npm run build && node dist/Lucid/send1Of.js"
+    "lucid:send1Of": "npm run build && node dist/Lucid/send1Of.js",
+    "lucid:simpleTransfer": "npm run build && node dist/Lucid/simpleTransfer.js",
+    "lucid:realisticTransfer": "npm run build && node dist/Lucid/realisticTransfer.js",
+    "lucid:aggregateSimple": "npm run build && node dist/Lucid/aggregateSimple.js",
+    "lucid:batcherPool": "npm run build && node dist/Lucid/batcherPool.js"
   },
   "author": "Rhys Morgan",
   "license": "ISC",
